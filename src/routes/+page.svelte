@@ -26,7 +26,7 @@
     }
 </script>
 
-<div class="container">
+<div class="container non-selectable">
     <Carousel.Root bind:api class="w-full max-w-xs mx-auto">
         <Carousel.Content>
             {#each Array(5) as _, i (i)}
@@ -65,6 +65,10 @@
 </div>
 
 <style>
+    .non-selectable {
+        user-select: none;
+    }
+
     .logo.vite:hover {
         filter: drop-shadow(0 0 2em #747bff);
     }
