@@ -3,6 +3,7 @@
     import * as Card from "$lib/components/ui/card/index.js";
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
+    import { Progress } from "$lib/components/ui/progress";
 
     let api: CarouselAPI;
     let current = 0;
@@ -27,7 +28,13 @@
 </script>
 
 <div class="container non-selectable">
-    <Carousel.Root bind:api class="mx-auto">
+    <Carousel.Root
+        bind:api
+        class="my-20 mx-96 "
+        opts={{
+            loop: true,
+        }}
+    >
         <Carousel.Content>
             {#each Array(5) as _, i (i)}
                 <Carousel.Item>
@@ -45,13 +52,20 @@
                 </Carousel.Item>
             {/each}
         </Carousel.Content>
-        <Carousel.Previous />
-        <Carousel.Next />
+        <!-- <Carousel.Previous />
+        <Carousel.Next /> -->
     </Carousel.Root>
+
+    <div class="text-left w-[80%] mx-auto">
+        <p class="text-3xl">Smells like teen spirit</p>
+        <p class="text-xl opacity-70">Nirvana</p>
+        <hr class="my-2 border-t border-white" />
+        <Progress value={current * 20} class="h-4" />
+    </div>
+
     <div class="text-muted-foreground py-2 text-center text-sm">
         Slide {current} of {count}
     </div>
-
     <!-- <form class="row" on:submit|preventDefault={greet}>
         <input
             id="greet-input"
@@ -76,7 +90,6 @@
         font-weight: 600;
 
         color: #0f0f0f;
-        background-color: #f6f6f6;
 
         font-synthesis: none;
         text-rendering: optimizeLegibility;
@@ -86,7 +99,6 @@
     }
 
     .container {
-        padding-top: 15em;
         display: flex;
         flex-direction: column;
         text-align: center;
