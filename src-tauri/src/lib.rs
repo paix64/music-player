@@ -1,29 +1,37 @@
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
-use rodio::{Decoder, OutputStream, Source};
+use rodio::{Decoder, OutputStream, Sink};
 use std::{
     fs::{self, File},
     io::BufReader,
 };
 
+mod player;
+use player::Player;
+
 #[tauri::command]
-fn play_music() {
-    // Get an output stream handle to the default physical sound device
+async fn play_music() {
+    // _stream must live as long as the sink
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    // Load a sound from a file, using a path relative to Cargo.toml
+    let sink = Sink::try_new(&stream_handle).unwrap();
+
     let downloads = dirs::download_dir().expect("Downloads do not exist");
-    let dir = format!("{}/music.mp3",downloads.display());
+    let dir = format!("{}/music.mp3", downloads.display());
 
     let file = BufReader::new(File::open(dir).expect("File could not read"));
     // Decode that sound file into a source
     let source = Decoder::new(file).expect("Could not decode file");
     // Play the sound directly on the device
-    let _ = stream_handle.play_raw(source.convert_samples());
 
-    // The sound plays in a separate audio thread,
-    // so we need to keep the main thread alive while it's playing.
-    std::thread::sleep(std::time::Duration::from_secs(3));
+    sink.append(source);
+
+    // The sound plays in a separate thread. This call will block the current thread until the sink
+    // has finished playing all its queued sounds.
+    sink.sleep_until_end();
 }
+
+#[tauri::command]
+fn pause_resume() {}
 
 #[tauri::command]
 fn greet(name: &str) -> String {
