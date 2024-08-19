@@ -25,6 +25,13 @@
         // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
         greetMsg = await invoke("greet", { name });
     }
+
+    async function getFiles(dir: string): Promise<any> {
+        greetMsg = await invoke("get_files", { dir });
+    }
+    async function playMusic() {
+        await invoke("play_music");
+    }
 </script>
 
 <div class="container non-selectable">
@@ -43,9 +50,7 @@
                             <Card.Content
                                 class="flex aspect-square items-center justify-center p-6"
                             >
-                                <span class="text-4xl font-semibold"
-                                    >{i + 1}</span
-                                >
+                                <img src="static/favicon.png" alt="aa" />
                             </Card.Content>
                         </Card.Root>
                     </div>
@@ -66,16 +71,16 @@
     <div class="text-muted-foreground py-2 text-center text-sm">
         Slide {current} of {count}
     </div>
-    <!-- <form class="row" on:submit|preventDefault={greet}>
-        <input
-            id="greet-input"
-            placeholder="Enter a name..."
-            bind:value={name}
-        />
+
+    <form class="row" on:submit|preventDefault={greet}>
+        <input placeholder="Enter a name..." bind:value={name} />
         <button type="submit">Greet</button>
     </form>
 
-    <p>{greetMsg}</p> -->
+    <button on:click={async () => await getFiles(".")}>Greet</button>
+    <button on:click={async () => await playMusic()}>music</button>
+
+    <p>{greetMsg}</p>
 </div>
 
 <style>
