@@ -11,12 +11,12 @@ fn play_music() {
     // Get an output stream handle to the default physical sound device
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     // Load a sound from a file, using a path relative to Cargo.toml
-    let downloads = dirs::download_dir().unwrap();
+    let downloads = dirs::download_dir().expect("Downloads do not exist");
     let dir = format!("{}/music.mp3",downloads.display());
 
-    let file = BufReader::new(File::open(dir).unwrap());
+    let file = BufReader::new(File::open(dir).expect("File could not read"));
     // Decode that sound file into a source
-    let source = Decoder::new(file).unwrap();
+    let source = Decoder::new(file).expect("Could not decode file");
     // Play the sound directly on the device
     let _ = stream_handle.play_raw(source.convert_samples());
 
