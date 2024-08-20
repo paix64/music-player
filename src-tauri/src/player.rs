@@ -1,16 +1,10 @@
-use std::{
-    fs::File,
-    io::BufReader,
-    path::{Path, PathBuf},
-    sync::Arc,
-    thread,
-    time::Duration,
-};
+use std::{fs::File, io::BufReader, path::PathBuf, sync::Arc, time::Duration};
 
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
+use tokio::spawn;
 
 pub struct Player {
-    output_stream: Arc<(OutputStream, OutputStreamHandle)>,
+    _output_stream: Arc<(OutputStream, OutputStreamHandle)>,
     sink: Arc<Sink>,
     song_length: u32,
     current_song: String,
@@ -19,9 +13,12 @@ pub struct Player {
 
 impl Player {
     pub fn new() -> Self {
+        let o = OutputStream::try_default().unwrap();
+        let s = Sink::try_new(&o.1).unwrap();
+
         Self {
-            output_stream: Arc::new(OutputStream::try_default().unwrap()),
-            sink: Arc::new(Sink::new_idle().0),
+            _output_stream: Arc::new(o),
+            sink: Arc::new(s),
             song_length: 0,
             current_song: String::from("None"),
             volume: 0.5,
@@ -31,35 +28,21 @@ impl Player {
     pub fn play(&mut self, path: PathBuf) {
         self.sink.stop(); // If it is already running stop it
 
-        println!("{path:?}");
-
-        self.current_song = path
-            .clone()
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_string();
-
-        println!("{}", self.current_song);
-
         self.set_current_song(&path);
         // self.set_song_length(&path);
 
-        self.sink = Arc::new(Sink::try_new(&self.output_stream.1).unwrap());
+        println!("{}", self.current_song);
 
         // clone sink for thread
-        let sclone = self.sink.clone();
+        let sinkc = self.sink.clone();
 
-        let stream_thread = thread::spawn(move || {
+        let _stream_thread = spawn(async move {
             let file = BufReader::new(File::open(path).unwrap());
             let source = Decoder::new(file).unwrap();
 
-            sclone.append(source);
-            sclone.sleep_until_end();
+            sinkc.append(source);
+            sinkc.sleep_until_end();
         });
-
-        stream_thread.join().expect("Thread panicked");
     }
 
     pub fn pause_resume(&mut self) {
