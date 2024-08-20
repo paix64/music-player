@@ -18,16 +18,10 @@
         });
     }
 
-    let name = "";
-    let greetMsg = "";
-
-    async function greet() {
-        // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-        greetMsg = await invoke("greet", { name });
-    }
+    let msg = "";
 
     async function getFiles(dir: string): Promise<any> {
-        greetMsg = await invoke("get_files", { dir });
+        msg = await invoke("get_files", { dir });
     }
     async function playMusic() {
         await invoke("play_music");
@@ -37,7 +31,7 @@
 <div class="container non-selectable">
     <Carousel.Root
         bind:api
-        class="my-20 mx-auto w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%]" 
+        class="my-20 mx-auto w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%]"
         opts={{
             loop: true,
         }}
@@ -72,15 +66,9 @@
         Slide {current} of {count}
     </div>
 
-    <form class="row" on:submit|preventDefault={greet}>
-        <input placeholder="Enter a name..." bind:value={name} />
-        <button type="submit">Greet</button>
-    </form>
-
-    <button on:click={async () => await getFiles(".")}>Greet</button>
     <button on:click={async () => await playMusic()}>music</button>
 
-    <p>{greetMsg}</p>
+    <p>{msg}</p>
 </div>
 
 <style>

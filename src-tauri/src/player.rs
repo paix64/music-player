@@ -29,7 +29,9 @@ impl Player {
     }
 
     pub fn play(&mut self, path: PathBuf) {
-        self.sink.stop();
+        self.sink.stop(); // If it is already running stop it
+
+        println!("{path:?}");
 
         self.current_song = path
             .clone()
@@ -39,21 +41,25 @@ impl Player {
             .unwrap()
             .to_string();
 
+        println!("{}", self.current_song);
+
         self.set_current_song(&path);
-        self.set_song_length(&path);
+        // self.set_song_length(&path);
 
         self.sink = Arc::new(Sink::try_new(&self.output_stream.1).unwrap());
 
         // clone sink for thread
         let sclone = self.sink.clone();
 
-        let _t1 = thread::spawn(move || {
+        let stream_thread = thread::spawn(move || {
             let file = BufReader::new(File::open(path).unwrap());
             let source = Decoder::new(file).unwrap();
 
             sclone.append(source);
             sclone.sleep_until_end();
         });
+
+        stream_thread.join().expect("Thread panicked");
     }
 
     pub fn pause_resume(&mut self) {
@@ -90,19 +96,19 @@ impl Player {
             .to_string();
     }
 
-    pub fn set_song_length(&mut self, path: &PathBuf) {
-        let path = Path::new(&path);
-        let tagged_file = Probe::open(path)
-            .expect("ERROR: Bad path provided!")
-            .read()
-            .expect("ERROR: Failed to read file!");
+    // pub fn set_song_length(&mut self, path: &PathBuf) {
+    //     let path = Path::new(&path);
+    //     let tagged_file = Probe::open(path)
+    //         .expect("ERROR: Bad path provided!")
+    //         .read()
+    //         .expect("ERROR: Failed to read file!");
 
-        let properties = &tagged_file.properties();
-        let duration = properties.duration();
+    //     let properties = &tagged_file.properties();
+    //     let duration = properties.duration();
 
-        // update song length, currently playing
-        self.song_length = duration.as_secs() as u32;
-    }
+    //     // update song length, currently playing
+    //     self.song_length = duration.as_secs() as u32;
+    // }
 
     pub fn set_volume(&mut self, volume: f32) {
         self.volume += volume;
