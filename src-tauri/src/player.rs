@@ -131,3 +131,6 @@ impl Player {
             .expect("Cannot change player position");
     }
 }
+
+unsafe impl Sync for Player {}
+unsafe impl Send for Player {}

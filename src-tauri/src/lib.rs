@@ -2,16 +2,20 @@
 
 mod player;
 
-use std::{fs, path::PathBuf};
-
+use lazy_static::lazy_static;
 use player::Player;
+use std::{fs, path::PathBuf, sync::Mutex};
+
+lazy_static! {
+    static ref PLAYER: Mutex<Player> = Mutex::new(Player::new());
+}
 
 #[tauri::command]
 async fn play_music() {
     let downloads = dirs::download_dir().expect("Downloads do not exist");
     let dir = PathBuf::from(format!("{}/music.mp3", downloads.display()));
 
-    let mut player = Player::new();
+    let mut player = PLAYER.lock().unwrap();
     let _ = player.play(dir);
 
     // let (_stream, stream_handle) = OutputStream::try_default().unwrap();

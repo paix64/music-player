@@ -1951,6 +1951,7 @@ name = "mus-player"
 version = "0.1.0"
 dependencies = [
  "dirs",
+ "lazy_static",
  "rodio",
  "serde",
  "serde_json",
