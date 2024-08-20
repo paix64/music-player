@@ -1,11 +1,10 @@
-use std::{fs::File, io::BufReader, path::PathBuf, sync::Arc, time::Duration};
+use std::{fs::File, io::BufReader, path::PathBuf, time::Duration};
 
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
-use tokio::spawn;
 
 pub struct Player {
-    _output_stream: Arc<(OutputStream, OutputStreamHandle)>,
-    sink: Arc<Sink>,
+    _output_stream: (OutputStream, OutputStreamHandle),
+    sink: Sink,
     song_length: u32,
     current_song: String,
     volume: f32,
@@ -17,8 +16,8 @@ impl Player {
         let s = Sink::try_new(&o.1).unwrap();
 
         Self {
-            _output_stream: Arc::new(o),
-            sink: Arc::new(s),
+            _output_stream: o,
+            sink: s,
             song_length: 0,
             current_song: String::from("None"),
             volume: 0.5,
@@ -33,16 +32,14 @@ impl Player {
 
         println!("{}", self.current_song);
 
-        // clone sink for thread
-        let sinkc = self.sink.clone();
+        self.add_to_queue(path)
+    }
 
-        let _stream_thread = spawn(async move {
-            let file = BufReader::new(File::open(path).unwrap());
-            let source = Decoder::new(file).unwrap();
+    pub fn add_to_queue(&self, path: PathBuf) {
+        let file = BufReader::new(File::open(path).unwrap());
+        let source = Decoder::new(file).unwrap();
 
-            sinkc.append(source);
-            sinkc.sleep_until_end();
-        });
+        self.sink.append(source);
     }
 
     pub fn pause_resume(&mut self) {

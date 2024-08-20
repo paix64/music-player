@@ -29,7 +29,12 @@
     async function pauseResume() {
         await invoke("pause_resume");
     }
-
+    async function skipMusic() {
+        await invoke("skip_music");
+    }
+    async function addMusic() {
+        await invoke("add_music");
+    }
 </script>
 
 <div class="container non-selectable">
@@ -71,8 +76,14 @@
     </div>
 
     <button class="my-4" on:click={async () => await playMusic()}>play</button>
-    <button class="my-4" on:click={async () => await pauseResume()}>pause</button>
-    <button class="my-4" on:click={async () => await getMusic(".")}>get_music</button>
+    <button class="my-4" on:click={async () => await skipMusic()}>skip</button>
+    <button class="my-4" on:click={async () => await addMusic()}>add</button>
+    <button class="my-4" on:click={async () => await pauseResume()}
+        >pause</button
+    >
+    <button class="my-4" on:click={async () => await getMusic(".")}
+        >get_music</button
+    >
 
     <p>{msg}</p>
 </div>
