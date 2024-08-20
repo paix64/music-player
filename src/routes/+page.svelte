@@ -26,6 +26,10 @@
     async function playMusic() {
         await invoke("play_music");
     }
+    async function pauseResume() {
+        await invoke("pause_resume");
+    }
+
 </script>
 
 <div class="container non-selectable">
@@ -67,6 +71,7 @@
     </div>
 
     <button on:click={async () => await playMusic()}>music</button>
+    <button on:click={async () => await pauseResume()}>pause</button>
 
     <p>{msg}</p>
 </div>
