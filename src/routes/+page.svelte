@@ -4,6 +4,7 @@
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import { Progress } from "$lib/components/ui/progress";
+    import { Slider } from "$lib/components/ui/slider";
 
     let api: CarouselAPI;
     let current = 0;
@@ -18,13 +19,19 @@
         });
     }
 
-    let msg = "";
+    let music = "";
+
+    let song_length = 0.0;
+    let song_position = 0.0;
+    let song_length_display = "0:00";
+    let song_position_display = "0:00";
 
     async function getMusic(dir: string): Promise<any> {
-        msg = await invoke("get_music", { dir });
+        music = await invoke("get_music", { dir });
     }
     async function playMusic() {
         await invoke("play_music");
+        await getSongLength();
     }
     async function pauseResume() {
         await invoke("pause_resume");
@@ -35,6 +42,31 @@
     async function addMusic() {
         await invoke("add_music");
     }
+    async function getSongLength(): Promise<any> {
+        song_length = await invoke("get_song_length");
+
+        const minutes = Math.floor(song_length / 60);
+        const seconds = song_length % 60;
+        song_length_display = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    }
+    async function getSongPosition(): Promise<any> {
+        song_position = await invoke("get_song_position");
+
+        const minutes = Math.floor(song_position / 60);
+        const seconds = song_position % 60;
+        song_position_display = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    }
+    async function main() {
+        await getMusic(".");
+    }
+
+    async function updateSongPosition() {
+        await getSongPosition();
+    }
+
+    setInterval(updateSongPosition, 500);
+
+    main();
 </script>
 
 <div class="container non-selectable">
@@ -68,7 +100,11 @@
         <p class="text-3xl">Smells like teen spirit</p>
         <p class="text-xl opacity-70">Nirvana</p>
         <hr class="my-2 border-t border-white" />
-        <Progress value={current * 20} class="h-4" />
+        {song_position / song_length}
+        <Slider value={[0]} max={song_length} class="h-4" />
+        <Progress value={song_position} max={song_length} class="h-4" />
+        <p class="opacity-50 text-sm float-right mx-1">{song_length_display}</p>
+        <p class="opacity-50 text-sm mx-1">{song_position_display}</p>
     </div>
 
     <div class="text-muted-foreground py-2 text-center text-sm">
@@ -85,7 +121,7 @@
         >get_music</button
     >
 
-    <p>{msg}</p>
+    <p>{music}</p>
 </div>
 
 <style>

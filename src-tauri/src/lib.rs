@@ -13,6 +13,18 @@ lazy_static! {
 }
 
 #[tauri::command]
+async fn get_song_length() -> u32 {
+    let mut player = PLAYER.lock().await;
+    player.get_song_length()
+}
+
+#[tauri::command]
+async fn get_song_position() -> u32 {
+    let mut player = PLAYER.lock().await;
+    player.get_position()
+}
+
+#[tauri::command]
 async fn play_music() {
     let music_dir = get_music(".");
 
@@ -69,7 +81,9 @@ pub fn run() {
             play_music,
             pause_resume,
             skip_music,
-            add_music
+            add_music,
+            get_song_length,
+            get_song_position
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

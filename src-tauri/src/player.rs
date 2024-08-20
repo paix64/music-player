@@ -1,6 +1,7 @@
 use std::{fs::File, io::BufReader, path::PathBuf, time::Duration};
 
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
+use lofty::{file::AudioFile, probe::Probe};
 
 pub struct Player {
     _output_stream: (OutputStream, OutputStreamHandle),
@@ -28,9 +29,10 @@ impl Player {
         self.sink.stop(); // If it is already running stop it
 
         self.set_current_song(&path);
-        // self.set_song_length(&path);
+        self.set_song_length(&path);
 
         println!("{}", self.current_song);
+        println!("{}", self.song_length);
 
         self.add_to_queue(path)
     }
@@ -76,19 +78,17 @@ impl Player {
             .to_string();
     }
 
-    // pub fn set_song_length(&mut self, path: &PathBuf) {
-    //     let path = Path::new(&path);
-    //     let tagged_file = Probe::open(path)
-    //         .expect("ERROR: Bad path provided!")
-    //         .read()
-    //         .expect("ERROR: Failed to read file!");
+    pub fn set_song_length(&mut self, path: &PathBuf) {
+        let tagged_file = Probe::open(path)
+            .expect("ERROR: Bad path provided!")
+            .read()
+            .expect("ERROR: Failed to read file!");
 
-    //     let properties = &tagged_file.properties();
-    //     let duration = properties.duration();
+        let properties = &tagged_file.properties();
+        let duration = properties.duration();
 
-    //     // update song length, currently playing
-    //     self.song_length = duration.as_secs() as u32;
-    // }
+        self.song_length = duration.as_secs() as u32;
+    }
 
     pub fn set_volume(&mut self, volume: f32) {
         self.volume += volume;
@@ -101,8 +101,8 @@ impl Player {
         self.sink.set_volume(self.volume)
     }
 
-    pub fn get_position(&self) -> Duration {
-        self.sink.get_pos()
+    pub fn get_position(&self) -> u32 {
+        Duration::as_secs_f32(&self.sink.get_pos()) as u32
     }
 
     pub fn set_position(&self, seconds: Duration) {
