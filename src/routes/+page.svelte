@@ -20,8 +20,8 @@
 
     let msg = "";
 
-    async function getFiles(dir: string): Promise<any> {
-        msg = await invoke("get_files", { dir });
+    async function getMusic(dir: string): Promise<any> {
+        msg = await invoke("get_music", { dir });
     }
     async function playMusic() {
         await invoke("play_music");
@@ -70,8 +70,9 @@
         Slide {current} of {count}
     </div>
 
-    <button on:click={async () => await playMusic()}>music</button>
-    <button on:click={async () => await pauseResume()}>pause</button>
+    <button class="my-4" on:click={async () => await playMusic()}>play</button>
+    <button class="my-4" on:click={async () => await pauseResume()}>pause</button>
+    <button class="my-4" on:click={async () => await getMusic(".")}>get_music</button>
 
     <p>{msg}</p>
 </div>

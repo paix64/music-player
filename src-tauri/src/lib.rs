@@ -6,6 +6,7 @@ use lazy_static::lazy_static;
 use player::Player;
 use std::{fs, path::PathBuf};
 use tokio::sync::Mutex;
+use walkdir::WalkDir;
 
 lazy_static! {
     static ref PLAYER: Mutex<Player> = Mutex::new(Player::new());
@@ -29,12 +30,16 @@ async fn pause_resume() {
 }
 
 #[tauri::command]
-fn get_files(_dir: &str) -> String {
-    let paths = fs::read_dir(dirs::home_dir().unwrap()).unwrap();
+fn get_music(_dir: &str) -> String {
+    let paths = dirs::audio_dir().unwrap();
     let mut list: Vec<String> = vec![];
 
-    for path in paths {
-        list.push(format!("Name: {}", path.unwrap().path().display()));
+    for entry in WalkDir::new(paths).into_iter().filter_map(|e| e.ok()) {
+        let file_name = entry.file_name().to_str().unwrap();
+        let formats = [".mp3", ".ogg", ".wav", ".flac", ".aac", ".m4a"];
+        if formats.iter().any(|&format| file_name.contains(format)) {
+            list.push(format!("{}", entry.path().display()));
+        }
     }
 
     format!("{:?}", list)
@@ -45,7 +50,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
-            get_files,
+            get_music,
             play_music,
             pause_resume,
         ])
