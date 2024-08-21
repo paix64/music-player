@@ -64,7 +64,7 @@
         await getSongPosition();
     }
 
-    setInterval(updateSongPosition, 500);
+    setInterval(updateSongPosition, 800);
 
     main();
 </script>

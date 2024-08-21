@@ -1,5 +1,4 @@
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-
 mod player;
 
 use lazy_static::lazy_static;
@@ -36,14 +35,16 @@ async fn play_music() {
 #[tauri::command]
 async fn pause_resume() {
     let mut player = PLAYER.lock().await;
-    println!("{}", player.get_current_song());
+    println!("{:?}", player.get_current_song());
+
+
     player.pause_resume();
 }
 
 #[tauri::command]
 async fn skip_music() {
     let player = PLAYER.lock().await;
-    println!("{}", player.get_current_song());
+    println!("{:?}", player.get_current_song());
     player.skip();
 }
 
@@ -53,7 +54,7 @@ async fn add_music() {
 
     let player = PLAYER.lock().await;
     player.add_to_queue(music_dir.get(1).unwrap().to_path_buf());
-    println!("{}", player.get_current_song());
+    println!("{:?}", player.get_current_song());
 }
 
 #[tauri::command]

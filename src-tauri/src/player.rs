@@ -1,13 +1,16 @@
-use std::{fs::File, io::BufReader, path::PathBuf, time::Duration};
+mod song;
+
+use std::{fs::{self, File}, io::{BufReader, Read}, path::{Path, PathBuf}, time::Duration, vec};
 
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
-use lofty::{file::AudioFile, probe::Probe};
+use lofty::{file::{AudioFile, TaggedFileExt}, picture, probe::Probe, tag::Accessor};
 
 pub struct Player {
     _output_stream: (OutputStream, OutputStreamHandle),
     sink: Sink,
     song_length: u32,
-    current_song: String,
+    current_song: PathBuf,
+    queue: Vec<PathBuf>,
     volume: f32,
 }
 
@@ -20,7 +23,8 @@ impl Player {
             _output_stream: o,
             sink: s,
             song_length: 0,
-            current_song: String::from("None"),
+            current_song: PathBuf::from("None"),
+            queue: vec![],
             volume: 0.5,
         }
     }
@@ -28,11 +32,8 @@ impl Player {
     pub fn play(&mut self, path: PathBuf) {
         self.sink.stop(); // If it is already running stop it
 
-        self.set_current_song(&path);
+        self.set_current_song_path(&path);
         self.set_song_length(&path);
-
-        println!("{}", self.current_song);
-        println!("{}", self.song_length);
 
         self.add_to_queue(path)
     }
@@ -56,7 +57,7 @@ impl Player {
         self.sink.skip_one();
     }
 
-    pub fn get_current_song(&self) -> String {
+    pub fn get_current_song(&self) -> PathBuf {
         self.current_song.clone()
     }
 
@@ -68,14 +69,15 @@ impl Player {
         self.sink.empty()
     }
 
-    pub fn set_current_song(&mut self, path: &PathBuf) {
-        self.current_song = path
-            .clone()
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_string();
+    pub fn set_current_song_path(&mut self, path: &PathBuf) {
+        self.current_song = path.to_owned();
+        // self.current_song = path
+        //     .clone()
+        //     .file_name()
+        //     .unwrap()
+        //     .to_str()
+        //     .unwrap()
+        //     .to_string();
     }
 
     pub fn set_song_length(&mut self, path: &PathBuf) {
@@ -85,7 +87,16 @@ impl Player {
             .expect("ERROR: Failed to read file!");
 
         let properties = &tagged_file.properties();
+        let metadata = &tagged_file.primary_tag().unwrap();
         let duration = properties.duration();
+        println!("{:?}",metadata.tag_type());
+        println!("{:?}",metadata.title());
+        println!("{:?}",metadata.album());
+        println!("{:?}",metadata.artist());
+        println!("{:?}",metadata.genre());
+        println!("{:?}",metadata.track());
+        println!("{:?}",metadata.track_total());
+        println!("{:?}",metadata.year());
 
         self.song_length = duration.as_secs() as u32;
     }
