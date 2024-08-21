@@ -3,7 +3,7 @@ mod player;
 
 use lazy_static::lazy_static;
 use player::Player;
-use std::{path::PathBuf, thread::sleep, time::Duration};
+use std::path::PathBuf;
 use tokio::sync::Mutex;
 use walkdir::WalkDir;
 
@@ -29,32 +29,36 @@ async fn play_music() {
 
     let mut player = PLAYER.lock().await;
 
-    player.play(music_dir.get(0).unwrap().to_path_buf());
+    player.play(music_dir.get(4).unwrap().to_path_buf());
+    println!("{:?}", player.get_current_song());
 }
 
 #[tauri::command]
 async fn pause_resume() {
     let mut player = PLAYER.lock().await;
-    println!("{:?}", player.get_current_song());
-
-
     player.pause_resume();
 }
 
 #[tauri::command]
 async fn skip_music() {
-    let player = PLAYER.lock().await;
-    println!("{:?}", player.get_current_song());
-    player.skip();
+    let mut player = PLAYER.lock().await;
+    player.next();
 }
 
 #[tauri::command]
 async fn add_music() {
     let music_dir = get_music(".");
 
-    let player = PLAYER.lock().await;
+    let mut player = PLAYER.lock().await;
     player.add_to_queue(music_dir.get(1).unwrap().to_path_buf());
-    println!("{:?}", player.get_current_song());
+    player.add_to_queue(music_dir.get(2).unwrap().to_path_buf());
+    player.add_to_queue(music_dir.get(3).unwrap().to_path_buf());
+}
+
+#[tauri::command]
+async fn get_current_song() -> String{
+    let mut player = PLAYER.lock().await;
+    player.get_current_song().unwrap()
 }
 
 #[tauri::command]
@@ -84,7 +88,8 @@ pub fn run() {
             skip_music,
             add_music,
             get_song_length,
-            get_song_position
+            get_song_position,
+            get_current_song
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

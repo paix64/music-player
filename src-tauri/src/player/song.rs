@@ -5,6 +5,7 @@ use lofty::file::{AudioFile, TaggedFileExt};
 use lofty::probe::Probe;
 use lofty::tag::Accessor;
 
+#[derive(Default, Debug, Clone)]
 pub struct Song {
     name: String,
     path: PathBuf,
@@ -29,7 +30,7 @@ impl Song {
     }
 
     pub fn load_metadata(&mut self) {
-        dbg!("Loading metadata for {:?}", self.song_path());
+        println!("Loading metadata for {:?}", self.song_path());
 
         let tag_file = Probe::open(&self.path)
             .expect("ERROR: Bad path provided!")
@@ -81,7 +82,7 @@ impl Song {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct AudioMetadata {
     pub duration: Duration,
     pub channels: Option<u8>,
@@ -108,7 +109,7 @@ impl AudioMetadata {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct MusicMetadata {
     pub title: Option<String>,
     pub artist: Option<String>,

@@ -1,16 +1,17 @@
 mod song;
 
-use std::{fs::{self, File}, io::{BufReader, Read}, path::{Path, PathBuf}, time::Duration, vec};
+use std::{fs::File, io::BufReader, path::PathBuf, time::Duration, vec};
 
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
-use lofty::{file::{AudioFile, TaggedFileExt}, picture, probe::Probe, tag::Accessor};
+
+use song::Song;
 
 pub struct Player {
     _output_stream: (OutputStream, OutputStreamHandle),
     sink: Sink,
-    song_length: u32,
-    current_song: PathBuf,
-    queue: Vec<PathBuf>,
+    current_song: Option<Song>,
+    queue_index: usize,
+    queue: Vec<Song>,
     volume: f32,
 }
 
@@ -22,8 +23,8 @@ impl Player {
         Self {
             _output_stream: o,
             sink: s,
-            song_length: 0,
-            current_song: PathBuf::from("None"),
+            current_song: None,
+            queue_index: 0,
             queue: vec![],
             volume: 0.5,
         }
@@ -32,17 +33,33 @@ impl Player {
     pub fn play(&mut self, path: PathBuf) {
         self.sink.stop(); // If it is already running stop it
 
-        self.set_current_song_path(&path);
-        self.set_song_length(&path);
+        self.current_song = Some(
+            self.queue
+                .get(self.queue_index)
+                .expect("Could not get current song")
+                .clone(),
+        );
 
-        self.add_to_queue(path)
-    }
-
-    pub fn add_to_queue(&self, path: PathBuf) {
-        let file = BufReader::new(File::open(path).unwrap());
+        let file = BufReader::new(File::open(path.clone()).unwrap());
         let source = Decoder::new(file).unwrap();
 
         self.sink.append(source);
+    }
+
+    pub fn get_current_song(&mut self) -> Option<String> {
+        match &self.current_song {
+            Some(s) => s.music_metadata().title.clone(),
+            None => None,
+        }
+    }
+
+    pub fn add_to_queue(&mut self, path: PathBuf) {
+        let mut song = Song::new(path);
+        song.load_metadata();
+
+        self.queue.push(song);
+        println!("{:?}", self.queue);
+
     }
 
     pub fn pause_resume(&mut self) {
@@ -53,52 +70,39 @@ impl Player {
         }
     }
 
-    pub fn skip(&self) {
-        self.sink.skip_one();
+    pub fn next(&mut self) {
+        let next_song = self
+            .queue
+            .get(self.queue_index + 1)
+            .expect("Index does not exist");
+
+        self.queue_index += 1;
+        self.play(next_song.song_path().clone())
     }
 
-    pub fn get_current_song(&self) -> PathBuf {
-        self.current_song.clone()
+    pub fn previous(&mut self) {
+        let next_song = self
+            .queue
+            .get(self.queue_index - 1)
+            .expect("Index does not exist");
+
+        self.queue_index -= 1;
+        self.play(next_song.song_path().clone())
     }
 
-    pub fn get_song_length(&self) -> u32 {
-        self.song_length
+    pub fn get_song_length(&mut self) -> u32 {
+        match &self.current_song {
+            Some(s) => Duration::as_secs(&s.audio_metadata().duration) as u32,
+            None => 0,
+        }
     }
 
-    pub fn is_sink_empty(&self) -> bool {
+    pub fn get_position(&self) -> u32 {
+        Duration::as_secs_f32(&self.sink.get_pos()) as u32
+    }
+
+    pub fn is_queue_empty(&self) -> bool {
         self.sink.empty()
-    }
-
-    pub fn set_current_song_path(&mut self, path: &PathBuf) {
-        self.current_song = path.to_owned();
-        // self.current_song = path
-        //     .clone()
-        //     .file_name()
-        //     .unwrap()
-        //     .to_str()
-        //     .unwrap()
-        //     .to_string();
-    }
-
-    pub fn set_song_length(&mut self, path: &PathBuf) {
-        let tagged_file = Probe::open(path)
-            .expect("ERROR: Bad path provided!")
-            .read()
-            .expect("ERROR: Failed to read file!");
-
-        let properties = &tagged_file.properties();
-        let metadata = &tagged_file.primary_tag().unwrap();
-        let duration = properties.duration();
-        println!("{:?}",metadata.tag_type());
-        println!("{:?}",metadata.title());
-        println!("{:?}",metadata.album());
-        println!("{:?}",metadata.artist());
-        println!("{:?}",metadata.genre());
-        println!("{:?}",metadata.track());
-        println!("{:?}",metadata.track_total());
-        println!("{:?}",metadata.year());
-
-        self.song_length = duration.as_secs() as u32;
     }
 
     pub fn set_volume(&mut self, volume: f32) {
@@ -110,10 +114,6 @@ impl Player {
             self.volume = 1.0;
         }
         self.sink.set_volume(self.volume)
-    }
-
-    pub fn get_position(&self) -> u32 {
-        Duration::as_secs_f32(&self.sink.get_pos()) as u32
     }
 
     pub fn set_position(&self, seconds: Duration) {

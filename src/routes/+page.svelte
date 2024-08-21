@@ -19,31 +19,37 @@
         });
     }
 
-    let music = "";
-
-    let song_length = 0.0;
+    let song_name = "";
+    let song_length = 100.0;
     let song_position = 0.0;
     let song_length_display = "0:00";
     let song_position_display = "0:00";
 
-    async function getMusic(dir: string): Promise<any> {
-        music = await invoke("get_music", { dir });
-    }
     async function playMusic() {
         await invoke("play_music");
         await getSongLength();
+        await getCurrentSong();
     }
     async function pauseResume() {
         await invoke("pause_resume");
     }
     async function skipMusic() {
         await invoke("skip_music");
+        await getSongLength();
+        await getCurrentSong();
     }
     async function addMusic() {
         await invoke("add_music");
     }
+    async function getCurrentSong() {
+        song_name = await invoke("get_current_song");
+    }
+
     async function getSongLength(): Promise<any> {
         song_length = await invoke("get_song_length");
+        if (song_length == 0) {
+            song_length = 100.0;
+        }
 
         const minutes = Math.floor(song_length / 60);
         const seconds = song_length % 60;
@@ -56,17 +62,11 @@
         const seconds = song_position % 60;
         song_position_display = `${minutes}:${seconds.toString().padStart(2, "0")}`;
     }
-    async function main() {
-        await getMusic(".");
-    }
-
     async function updateSongPosition() {
         await getSongPosition();
     }
 
     setInterval(updateSongPosition, 800);
-
-    main();
 </script>
 
 <div class="container non-selectable">
@@ -97,7 +97,7 @@
     </Carousel.Root>
 
     <div class="text-left w-[80%] mx-auto">
-        <p class="text-3xl">Smells like teen spirit</p>
+        <p class="text-3xl">{song_name}</p>
         <p class="text-xl opacity-70">Nirvana</p>
         <hr class="my-2 border-t border-white" />
         {song_position / song_length}
@@ -117,11 +117,6 @@
     <button class="my-4" on:click={async () => await pauseResume()}
         >pause</button
     >
-    <button class="my-4" on:click={async () => await getMusic(".")}
-        >get_music</button
-    >
-
-    <p>{music}</p>
 </div>
 
 <style>
