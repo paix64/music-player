@@ -24,15 +24,21 @@
         });
     }
 
-    let song_name = "";
-    let song_length = 100.0;
+    let song_title = "";
+    let song_artist = "";
+    let song_album = "";
+    let song_genre = "";
+    let song_year = "";
+    let song_track = "";
+    let song_track_total = "";
+
+    let song_duration = 100.0;
     let song_position = 0.0;
     let song_length_display = "0:00";
     let song_position_display = "0:00";
 
     async function playMusic() {
         await invoke("play_music");
-        await getSongLength();
         await getCurrentSong();
     }
     async function pauseResume() {
@@ -40,26 +46,38 @@
     }
     async function skipMusic() {
         await invoke("skip_music");
-        await getSongLength();
         await getCurrentSong();
     }
     async function addMusic() {
         await invoke("add_music");
     }
+    async function getCurrentSongInfo(key: string): Promise<any> {
+        return await invoke("get_current_song_info", { key });
+    }
     async function getCurrentSong() {
-        song_name = await invoke("get_current_song");
+        song_title = await getCurrentSongInfo("title");
+        song_artist = await getCurrentSongInfo("artist");
+        song_album = await getCurrentSongInfo("album");
+        song_genre = await getCurrentSongInfo("genre");
+        song_year = await getCurrentSongInfo("year");
+        song_track = await getCurrentSongInfo("track");
+        song_track_total = await getCurrentSongInfo("track_total");
+        song_duration = await getCurrentSongInfo("duration").then((dur) => {
+            if ((dur as number) == 0) {
+                return 100.0;
+            }
+            const minutes = Math.floor(dur / 60);
+            const seconds = dur % 60;
+            song_length_display = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+
+            return dur as number;
+        });
     }
 
-    async function getSongLength(): Promise<any> {
-        song_length = await invoke("get_song_length");
-        if (song_length == 0) {
-            song_length = 100.0;
-        }
-
-        const minutes = Math.floor(song_length / 60);
-        const seconds = song_length % 60;
-        song_length_display = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    async function seekMusic(pos: number) {
+        await invoke("seek_position", { pos });
     }
+
     async function getSongPosition(): Promise<any> {
         song_position = await invoke("get_song_position");
 
@@ -67,10 +85,10 @@
         const seconds = song_position % 60;
         song_position_display = `${minutes}:${seconds.toString().padStart(2, "0")}`;
     }
+
     async function updateSongPosition() {
         await getSongPosition();
     }
-
     setInterval(updateSongPosition, 500);
 </script>
 
@@ -102,11 +120,12 @@
     </Carousel.Root>
 
     <div class="text-left w-[80%] mx-auto">
-        <p class="text-3xl">{song_name}</p>
-        <p class="text-xl opacity-70">Nirvana</p>
+        <p class="text-3xl">{song_title}</p>
+        <p class="text-xl opacity-70">{song_artist}</p>
         <hr class="my-2 border-t border-white" />
-        {song_position / song_length}
-        <Slider value={[song_position]} max={song_length} class="mx-auto" />
+        {song_position / song_duration}
+        <Progress value={song_position} max={song_duration} class="h-4" />
+        <!-- <Slider value={[song_position]} max={song_duration} class="mx-auto" /> -->
         <p class="opacity-50 text-sm float-right mx-1">{song_length_display}</p>
         <p class="opacity-50 text-sm mx-1">{song_position_display}</p>
     </div>
@@ -116,13 +135,22 @@
     </div>
 
     <div class="text-slate-400">
-        <button class="my-4 mr-10 rounded-full bg-slate-200 p-3" on:click={async () => await skipMusic()}>
+        <button
+            class="my-4 mr-10 rounded-full bg-slate-200 p-3"
+            on:click={async () => await skipMusic()}
+        >
             <SkipBackIcon size="50rem" />
         </button>
-        <button class="my-4 rounded-full bg-slate-200 p-3" on:click={async () => await playMusic()}>
+        <button
+            class="my-4 rounded-full bg-slate-200 p-3"
+            on:click={async () => await playMusic()}
+        >
             <PlayIcon size="50rem" />
         </button>
-        <button class="my-4 ml-10 rounded-full bg-slate-200 p-3" on:click={async () => await skipMusic()}>
+        <button
+            class="my-4 ml-10 rounded-full bg-slate-200 p-3"
+            on:click={async () => await skipMusic()}
+        >
             <SkipForwardIcon size="50em" />
         </button>
         <!-- <button class="my-4" on:click={async () => await addMusic()}>add</button

@@ -3,18 +3,12 @@ mod player;
 
 use lazy_static::lazy_static;
 use player::Player;
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Duration};
 use tokio::sync::Mutex;
 use walkdir::WalkDir;
 
 lazy_static! {
     static ref PLAYER: Mutex<Player> = Mutex::new(Player::new());
-}
-
-#[tauri::command]
-async fn get_song_length() -> u32 {
-    let mut player = PLAYER.lock().await;
-    player.get_song_length()
 }
 
 #[tauri::command]
@@ -30,15 +24,26 @@ async fn play_music() {
     let mut player = PLAYER.lock().await;
 
     player.add_to_queue(music_dir.get(4).unwrap().to_path_buf());
-    let song_path = player.queue().get(0).unwrap().song_path().to_path_buf().clone();
+    let song_path = player
+        .queue()
+        .get(0)
+        .unwrap()
+        .song_path()
+        .to_path_buf()
+        .clone();
     player.play(song_path);
-    println!("{:?}", player.get_current_song());
 }
 
 #[tauri::command]
 async fn pause_resume() {
     let mut player = PLAYER.lock().await;
     player.pause_resume();
+}
+
+#[tauri::command]
+async fn seek_position(pos: Duration) {
+    let mut player = PLAYER.lock().await;
+    player.set_position(pos);
 }
 
 #[tauri::command]
@@ -58,9 +63,30 @@ async fn add_music() {
 }
 
 #[tauri::command]
-async fn get_current_song() -> String{
+async fn get_current_song_info(key: String) -> String {
     let mut player = PLAYER.lock().await;
-    player.get_current_song().unwrap_or_default()
+    let current_song = player.get_current_song_info().unwrap_or_default();
+
+    if key == "title" {
+        current_song.title.unwrap_or_default()
+    } else if key == "album" {
+        current_song.album.unwrap_or_default()
+    } else if key == "artist" {
+        current_song.artist.unwrap_or_default()
+    } else if key == "genre" {
+        current_song.genre.unwrap_or_default()
+    } else if key == "year" {
+        current_song.year.unwrap_or_default().to_string()
+    } else if key == "track" {
+        current_song.track.unwrap_or_default().to_string()
+    } else if key == "track_total" {
+        current_song.track_total.unwrap_or_default().to_string()
+    }else if key == "duration" {
+        player.get_song_duration().to_string()
+    }
+     else {
+        String::default()
+    }
 }
 
 #[tauri::command]
@@ -89,9 +115,9 @@ pub fn run() {
             pause_resume,
             skip_music,
             add_music,
-            get_song_length,
             get_song_position,
-            get_current_song
+            get_current_song_info,
+            seek_position
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

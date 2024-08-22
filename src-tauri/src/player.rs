@@ -4,7 +4,7 @@ use std::{fs::File, io::BufReader, path::PathBuf, time::Duration, vec};
 
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 
-use song::Song;
+use song::{MusicMetadata, Song};
 
 pub struct Player {
     _output_stream: (OutputStream, OutputStreamHandle),
@@ -41,9 +41,9 @@ impl Player {
         self.sink.append(source);
     }
 
-    pub fn get_current_song(&mut self) -> Option<String> {
+    pub fn get_current_song_info(&mut self) -> Option<MusicMetadata> {
         match &self.current_song {
-            Some(s) => s.music_metadata().title.clone(),
+            Some(s) => Some(s.music_metadata().clone()),
             None => None,
         }
     }
@@ -88,7 +88,7 @@ impl Player {
         self.play(prev_song.song_path().clone())
     }
 
-    pub fn get_song_length(&mut self) -> u32 {
+    pub fn get_song_duration(&mut self) -> u32 {
         match &self.current_song {
             Some(s) => Duration::as_secs(&s.audio_metadata().duration) as u32,
             None => 0,
