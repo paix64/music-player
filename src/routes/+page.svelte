@@ -5,6 +5,11 @@
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import { Progress } from "$lib/components/ui/progress";
     import { Slider } from "$lib/components/ui/slider";
+    import {
+        PlayIcon,
+        SkipForwardIcon,
+        SkipBackIcon,
+    } from "svelte-feather-icons";
 
     let api: CarouselAPI;
     let current = 0;
@@ -101,8 +106,7 @@
         <p class="text-xl opacity-70">Nirvana</p>
         <hr class="my-2 border-t border-white" />
         {song_position / song_length}
-        <Slider value={[0]} max={song_length} class="h-4" />
-        <Progress value={song_position} max={song_length} class="h-4" />
+        <Slider value={[song_position]} max={song_length} class="mx-auto" />
         <p class="opacity-50 text-sm float-right mx-1">{song_length_display}</p>
         <p class="opacity-50 text-sm mx-1">{song_position_display}</p>
     </div>
@@ -111,12 +115,22 @@
         Slide {current} of {count}
     </div>
 
-    <button class="my-4" on:click={async () => await playMusic()}>play</button>
-    <button class="my-4" on:click={async () => await skipMusic()}>skip</button>
-    <button class="my-4" on:click={async () => await addMusic()}>add</button>
-    <button class="my-4" on:click={async () => await pauseResume()}
-        >pause</button
-    >
+    <div class="text-slate-400">
+        <button class="my-4 mr-10 rounded-full bg-slate-200 p-3" on:click={async () => await skipMusic()}>
+            <SkipBackIcon size="50rem" />
+        </button>
+        <button class="my-4 rounded-full bg-slate-200 p-3" on:click={async () => await playMusic()}>
+            <PlayIcon size="50rem" />
+        </button>
+        <button class="my-4 ml-10 rounded-full bg-slate-200 p-3" on:click={async () => await skipMusic()}>
+            <SkipForwardIcon size="50em" />
+        </button>
+        <!-- <button class="my-4" on:click={async () => await addMusic()}>add</button
+        > -->
+        <!-- <button class="my-4" on:click={async () => await pauseResume()}
+            >pause</button
+        > -->
+    </div>
 </div>
 
 <style>
