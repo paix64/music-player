@@ -93,9 +93,10 @@
 </script>
 
 <div class="container non-selectable">
+    <p class="mt-10 text-xl opacity-70">{song_album}</p>
     <Carousel.Root
         bind:api
-        class="my-20 mx-auto w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%]"
+        class="my-5 mx-auto w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%]"
         opts={{
             loop: true,
         }}
@@ -123,7 +124,6 @@
         <p class="text-3xl">{song_title}</p>
         <p class="text-xl opacity-70">{song_artist}</p>
         <hr class="my-2 border-t border-white" />
-        {song_position / song_duration}
         <Progress value={song_position} max={song_duration} class="h-4" />
         <!-- <Slider value={[song_position]} max={song_duration} class="mx-auto" /> -->
         <p class="opacity-50 text-sm float-right mx-1">{song_length_display}</p>
@@ -145,7 +145,7 @@
             class="my-4 rounded-full bg-slate-200 p-3"
             on:click={async () => await playMusic()}
         >
-            <PlayIcon size="50rem" />
+            <PlayIcon size="50rem" class="ml-1.5" />
         </button>
         <button
             class="my-4 ml-10 rounded-full bg-slate-200 p-3"
