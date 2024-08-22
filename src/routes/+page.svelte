@@ -5,6 +5,7 @@
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import { Progress } from "$lib/components/ui/progress";
     import { Slider } from "$lib/components/ui/slider";
+
     import {
         PlayIcon,
         SkipForwardIcon,
@@ -27,6 +28,7 @@
     let song_title = "";
     let song_artist = "";
     let song_album = "";
+    let song_album_cover = "";
     let song_genre = "";
     let song_year = "";
     let song_track = "";
@@ -58,6 +60,7 @@
         song_title = await getCurrentSongInfo("title");
         song_artist = await getCurrentSongInfo("artist");
         song_album = await getCurrentSongInfo("album");
+        song_album_cover = await getCurrentSongInfo("album_cover");
         song_genre = await getCurrentSongInfo("genre");
         song_year = await getCurrentSongInfo("year");
         song_track = await getCurrentSongInfo("track");
@@ -109,15 +112,13 @@
                             <Card.Content
                                 class="flex aspect-square items-center justify-center p-6"
                             >
-                                <img src="static/favicon.png" alt="aa" />
+                            <img src="static/favicon.png" alt="aa" />
                             </Card.Content>
                         </Card.Root>
                     </div>
                 </Carousel.Item>
             {/each}
         </Carousel.Content>
-        <!-- <Carousel.Previous />
-        <Carousel.Next /> -->
     </Carousel.Root>
 
     <div class="text-left w-[80%] mx-auto">

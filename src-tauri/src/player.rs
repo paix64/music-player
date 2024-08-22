@@ -95,6 +95,13 @@ impl Player {
         }
     }
 
+    pub fn get_album_cover(&mut self) -> PathBuf {
+        match &self.current_song {
+            Some(s) => s.cover().clone(),
+            None => PathBuf::default(),
+        }
+    }
+
     pub fn get_position(&self) -> u32 {
         Duration::as_secs_f32(&self.sink.get_pos()) as u32
     }

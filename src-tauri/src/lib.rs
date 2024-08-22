@@ -81,10 +81,12 @@ async fn get_current_song_info(key: String) -> String {
         current_song.track.unwrap_or_default().to_string()
     } else if key == "track_total" {
         current_song.track_total.unwrap_or_default().to_string()
-    }else if key == "duration" {
+    } else if key == "duration" {
         player.get_song_duration().to_string()
-    }
-     else {
+    }else if key == "album_cover" {
+        player.get_album_cover().display().to_string()
+    } 
+    else {
         String::default()
     }
 }

@@ -4,11 +4,13 @@ use std::time::Duration;
 use lofty::file::{AudioFile, TaggedFileExt};
 use lofty::probe::Probe;
 use lofty::tag::Accessor;
+use walkdir::WalkDir;
 
 #[derive(Default, Debug, Clone)]
 pub struct Song {
     name: String,
     path: PathBuf,
+    cover: PathBuf,
     audio_metadata: AudioMetadata,
     music_metadata: MusicMetadata,
 }
@@ -24,6 +26,7 @@ impl Song {
         Self {
             name,
             path,
+            cover: PathBuf::default(),
             audio_metadata: AudioMetadata::default(),
             music_metadata: MusicMetadata::default(),
         }
@@ -63,6 +66,11 @@ impl Song {
 
         self.audio_metadata = audio_metadata;
         self.music_metadata = music_metadata;
+
+        self.cover =
+            Song::get_music_cover_path(".", self.music_metadata.album.clone().unwrap_or_default())
+                .unwrap_or_default();
+
     }
 
     pub fn song_path(&self) -> &PathBuf {
@@ -79,6 +87,26 @@ impl Song {
 
     pub fn music_metadata(&self) -> &MusicMetadata {
         &self.music_metadata
+    }
+
+    pub fn cover(&self) -> &PathBuf{
+        &self.cover
+    }
+
+    pub fn get_music_cover_path(_dir: &str, album: String) -> Option<PathBuf> {
+        let paths = dirs::audio_dir().unwrap();
+        let mut cover_path = None;
+
+        let cover_file_names = vec![format!("{album}-cover.jpg"), format!("{album}-cover.png")];
+
+        for entry in WalkDir::new(paths).into_iter().filter_map(|e| e.ok()) {
+            let file_name = entry.file_name().to_str().unwrap();
+            if cover_file_names.iter().any(|name| file_name.contains(name)) {
+                cover_path = Some(entry.path().to_owned());
+                break;
+            }
+        }
+        cover_path
     }
 }
 
