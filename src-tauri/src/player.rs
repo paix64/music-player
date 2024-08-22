@@ -33,12 +33,7 @@ impl Player {
     pub fn play(&mut self, path: PathBuf) {
         self.sink.stop(); // If it is already running stop it
 
-        self.current_song = Some(
-            self.queue
-                .get(self.queue_index)
-                .expect("Could not get current song")
-                .clone(),
-        );
+        self.current_song = self.queue.get(self.queue_index).cloned();
 
         let file = BufReader::new(File::open(path.clone()).unwrap());
         let source = Decoder::new(file).unwrap();
@@ -59,7 +54,10 @@ impl Player {
 
         self.queue.push(song);
         println!("{:?}", self.queue);
+    }
 
+    pub fn queue(&mut self) -> &Vec<Song>{
+        &self.queue
     }
 
     pub fn pause_resume(&mut self) {
@@ -81,13 +79,13 @@ impl Player {
     }
 
     pub fn previous(&mut self) {
-        let next_song = self
+        let prev_song = self
             .queue
             .get(self.queue_index - 1)
             .expect("Index does not exist");
 
         self.queue_index -= 1;
-        self.play(next_song.song_path().clone())
+        self.play(prev_song.song_path().clone())
     }
 
     pub fn get_song_length(&mut self) -> u32 {

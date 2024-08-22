@@ -71,7 +71,7 @@
         await getSongPosition();
     }
 
-    setInterval(updateSongPosition, 800);
+    setInterval(updateSongPosition, 500);
 </script>
 
 <div class="container non-selectable">

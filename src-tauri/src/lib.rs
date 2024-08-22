@@ -29,7 +29,9 @@ async fn play_music() {
 
     let mut player = PLAYER.lock().await;
 
-    player.play(music_dir.get(4).unwrap().to_path_buf());
+    player.add_to_queue(music_dir.get(4).unwrap().to_path_buf());
+    let song_path = player.queue().get(0).unwrap().song_path().to_path_buf().clone();
+    player.play(song_path);
     println!("{:?}", player.get_current_song());
 }
 
@@ -58,7 +60,7 @@ async fn add_music() {
 #[tauri::command]
 async fn get_current_song() -> String{
     let mut player = PLAYER.lock().await;
-    player.get_current_song().unwrap()
+    player.get_current_song().unwrap_or_default()
 }
 
 #[tauri::command]
