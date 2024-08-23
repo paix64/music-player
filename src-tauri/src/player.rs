@@ -94,7 +94,7 @@ impl Player {
         Duration::as_secs_f32(&self.sink.get_pos()) as u32
     }
 
-    pub fn is_queue_empty(&self) -> bool {
+    pub fn song_finished(&self) -> bool {
         self.sink.empty()
     }
 

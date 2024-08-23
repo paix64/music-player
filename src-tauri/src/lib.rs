@@ -53,6 +53,12 @@ async fn skip_music(to_index: i32) {
 }
 
 #[tauri::command]
+async fn song_finished() -> bool {
+    let player = PLAYER.lock().await;
+    player.song_finished()
+}
+
+#[tauri::command]
 async fn add_music() {
     let music_dir = get_music(".");
 
@@ -119,7 +125,8 @@ pub fn run() {
             add_music,
             get_song_position,
             get_current_song_info,
-            seek_position
+            seek_position,
+            song_finished
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

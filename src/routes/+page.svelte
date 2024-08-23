@@ -92,6 +92,10 @@
 
     async function updateSongPosition() {
         await getSongPosition();
+        let song_finished = await invoke("song_finished");
+        if (song_finished) {
+            await skipMusic(1);
+        }
     }
     setInterval(updateSongPosition, 500);
 </script>
@@ -101,9 +105,6 @@
     <Carousel.Root
         bind:api
         class="my-5 mx-auto w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%]"
-        opts={{
-            loop: true,
-        }}
     >
         <Carousel.Content>
             {#each Array(5) as _, i (i)}
@@ -141,7 +142,10 @@
     <div class="text-slate-400">
         <button
             class="my-4 mr-10 rounded-full bg-slate-200 p-3"
-            on:click={async () => await skipMusic(-1)}
+            on:click={async () => {
+                await skipMusic(-1);
+                api.scrollPrev();
+            }}
         >
             <SkipBackIcon size="50rem" />
         </button>
@@ -153,7 +157,10 @@
         </button>
         <button
             class="my-4 ml-10 rounded-full bg-slate-200 p-3"
-            on:click={async () => await skipMusic(1)}
+            on:click={async () => {
+                await skipMusic(1);
+                api.scrollNext();
+            }}
         >
             <SkipForwardIcon size="50em" />
         </button>
