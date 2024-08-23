@@ -18,26 +18,15 @@ async fn get_song_position() -> u32 {
 }
 
 #[tauri::command]
-async fn play_music() {
-    let music_dir = get_music(".");
-
+async fn play_pause() {
     let mut player = PLAYER.lock().await;
 
-    player.add_to_queue(music_dir.get(4).unwrap().to_path_buf());
-    let song_path = player
-        .queue()
-        .get(0)
-        .unwrap()
-        .song_path()
-        .to_path_buf()
-        .clone();
-    player.play(song_path);
-}
-
-#[tauri::command]
-async fn pause_resume() {
-    let mut player = PLAYER.lock().await;
-    player.pause_resume();
+    let first_song = player.queue().get(0).unwrap().song_path().clone();
+    if player.song_finished() {
+        player.play(first_song);
+    } else {
+        player.pause_resume();
+    }
 }
 
 #[tauri::command]
@@ -119,10 +108,9 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             get_music,
-            play_music,
-            pause_resume,
             skip_music,
             add_music,
+            play_pause,
             get_song_position,
             get_current_song_info,
             seek_position,

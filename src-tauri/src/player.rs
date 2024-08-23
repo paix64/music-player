@@ -95,7 +95,7 @@ impl Player {
     }
 
     pub fn song_finished(&self) -> bool {
-        self.sink.empty()
+        self.sink.empty() && !self.queue.is_empty()
     }
 
     pub fn set_volume(&mut self, volume: f32) {

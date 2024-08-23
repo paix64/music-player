@@ -39,13 +39,10 @@
     let song_length_display = "0:00";
     let song_position_display = "0:00";
 
-    async function playMusic() {
-        await invoke("play_music");
-        await getCurrentSong();
+    async function playPause() {
         await addMusic();
-    }
-    async function pauseResume() {
-        await invoke("pause_resume");
+        await invoke("play_pause");
+        await getCurrentSong();
     }
     async function skipMusic(toIndex: number) {
         await invoke("skip_music", { toIndex });
@@ -151,7 +148,7 @@
         </button>
         <button
             class="my-4 rounded-full bg-slate-200 p-3"
-            on:click={async () => await playMusic()}
+            on:click={async () => await playPause()}
         >
             <PlayIcon size="50rem" class="ml-1.5" />
         </button>
@@ -164,11 +161,6 @@
         >
             <SkipForwardIcon size="50em" />
         </button>
-        <!-- <button class="my-4" on:click={async () => await addMusic()}>add</button
-        > -->
-        <!-- <button class="my-4" on:click={async () => await pauseResume()}
-            >pause</button
-        > -->
     </div>
 </div>
 
