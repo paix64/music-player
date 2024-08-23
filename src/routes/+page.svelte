@@ -5,6 +5,8 @@
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import { Progress } from "$lib/components/ui/progress";
     import { Slider } from "$lib/components/ui/slider";
+    import IncesticideCover from "$lib/assets/Incesticide-cover.jpg";
+    import { BaseDirectory } from "@tauri-apps/plugin-fs";
 
     import {
         PlayIcon,
@@ -107,14 +109,16 @@
         <Carousel.Content>
             {#each Array(5) as _, i (i)}
                 <Carousel.Item>
-                    <div class="p-1">
-                        <Card.Root>
-                            <Card.Content
-                                class="flex aspect-square items-center justify-center p-6"
-                            >
-                            <img src="static/favicon.png" alt="aa" />
-                            </Card.Content>
-                        </Card.Root>
+                    <div
+                        class="p-0 border-4 rounded-3xl overflow-hidden border-slate-700"
+                    >
+                        <div class="">
+                            <img
+                                src={IncesticideCover}
+                                alt="Album Cover"
+                                class="w-full h-full object-cover"
+                            />
+                        </div>
                     </div>
                 </Carousel.Item>
             {/each}

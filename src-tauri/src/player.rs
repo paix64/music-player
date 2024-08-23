@@ -56,7 +56,7 @@ impl Player {
         println!("{:?}", self.queue);
     }
 
-    pub fn queue(&mut self) -> &Vec<Song>{
+    pub fn queue(&mut self) -> &Vec<Song> {
         &self.queue
     }
 

@@ -83,10 +83,9 @@ async fn get_current_song_info(key: String) -> String {
         current_song.track_total.unwrap_or_default().to_string()
     } else if key == "duration" {
         player.get_song_duration().to_string()
-    }else if key == "album_cover" {
+    } else if key == "album_cover" {
         player.get_album_cover().display().to_string()
-    } 
-    else {
+    } else {
         String::default()
     }
 }
@@ -110,6 +109,7 @@ fn get_music(_dir: &str) -> Vec<PathBuf> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             get_music,

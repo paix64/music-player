@@ -70,7 +70,6 @@ impl Song {
         self.cover =
             Song::get_music_cover_path(".", self.music_metadata.album.clone().unwrap_or_default())
                 .unwrap_or_default();
-
     }
 
     pub fn song_path(&self) -> &PathBuf {
@@ -89,7 +88,7 @@ impl Song {
         &self.music_metadata
     }
 
-    pub fn cover(&self) -> &PathBuf{
+    pub fn cover(&self) -> &PathBuf {
         &self.cover
     }
 
