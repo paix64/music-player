@@ -114,7 +114,7 @@
                     >
                         <div class="">
                             <img
-                                src={IncesticideCover}
+                                src={convertFileSrc(song_album_cover)}
                                 alt="Album Cover"
                                 class="w-full h-full object-cover"
                             />
@@ -124,11 +124,6 @@
             {/each}
         </Carousel.Content>
     </Carousel.Root>
-    {#await audioDir().then( (dir) => join(dir, "Nirvana/Incesticide/Incesticide-cover.jpg"), )}
-        <p>Loading...</p>
-    {:then path}
-        <img src={convertFileSrc(path)} alt="a" />
-    {/await}
 
     <div class="text-left w-[80%] mx-auto">
         <p class="text-3xl">{song_title}</p>
