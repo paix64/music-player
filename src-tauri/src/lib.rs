@@ -47,9 +47,9 @@ async fn seek_position(pos: Duration) {
 }
 
 #[tauri::command]
-async fn skip_music() {
+async fn skip_music(to_index: i32) {
     let mut player = PLAYER.lock().await;
-    player.next();
+    player.skip(to_index);
 }
 
 #[tauri::command]
@@ -57,9 +57,9 @@ async fn add_music() {
     let music_dir = get_music(".");
 
     let mut player = PLAYER.lock().await;
-    player.add_to_queue(music_dir.get(1).unwrap().to_path_buf());
-    player.add_to_queue(music_dir.get(2).unwrap().to_path_buf());
-    player.add_to_queue(music_dir.get(3).unwrap().to_path_buf());
+    player.add_to_queue(music_dir.get(23).unwrap().to_path_buf());
+    player.add_to_queue(music_dir.get(20).unwrap().to_path_buf());
+    player.add_to_queue(music_dir.get(13).unwrap().to_path_buf());
 }
 
 #[tauri::command]

@@ -4,8 +4,6 @@
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import { Progress } from "$lib/components/ui/progress";
     import { Slider } from "$lib/components/ui/slider";
-    import IncesticideCover from "$lib/assets/Incesticide-cover.jpg";
-    import { join, audioDir } from "@tauri-apps/api/path";
     import { convertFileSrc } from "@tauri-apps/api/core";
 
     import {
@@ -44,12 +42,13 @@
     async function playMusic() {
         await invoke("play_music");
         await getCurrentSong();
+        await addMusic();
     }
     async function pauseResume() {
         await invoke("pause_resume");
     }
-    async function skipMusic() {
-        await invoke("skip_music");
+    async function skipMusic(toIndex: number) {
+        await invoke("skip_music", { toIndex });
         await getCurrentSong();
     }
     async function addMusic() {
@@ -142,7 +141,7 @@
     <div class="text-slate-400">
         <button
             class="my-4 mr-10 rounded-full bg-slate-200 p-3"
-            on:click={async () => await skipMusic()}
+            on:click={async () => await skipMusic(-1)}
         >
             <SkipBackIcon size="50rem" />
         </button>
@@ -154,7 +153,7 @@
         </button>
         <button
             class="my-4 ml-10 rounded-full bg-slate-200 p-3"
-            on:click={async () => await skipMusic()}
+            on:click={async () => await skipMusic(1)}
         >
             <SkipForwardIcon size="50em" />
         </button>

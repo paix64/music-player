@@ -10,7 +10,7 @@ pub struct Player {
     _output_stream: (OutputStream, OutputStreamHandle),
     sink: Sink,
     current_song: Option<Song>,
-    queue_index: usize,
+    queue_index: i32,
     queue: Vec<Song>,
     volume: f32,
 }
@@ -33,7 +33,7 @@ impl Player {
     pub fn play(&mut self, path: PathBuf) {
         self.sink.stop(); // If it is already running stop it
 
-        self.current_song = self.queue.get(self.queue_index).cloned();
+        self.current_song = self.queue.get(self.queue_index as usize).cloned();
 
         let file = BufReader::new(File::open(path.clone()).unwrap());
         let source = Decoder::new(file).unwrap();
@@ -68,24 +68,12 @@ impl Player {
         }
     }
 
-    pub fn next(&mut self) {
-        let next_song = self
-            .queue
-            .get(self.queue_index + 1)
-            .expect("Index does not exist");
+    pub fn skip(&mut self, to_index: i32) {
+        let index = (self.queue_index as i32 + to_index) as usize;
+        let next_song = self.queue.get(index).expect("Index does not exist");
 
-        self.queue_index += 1;
+        self.queue_index += to_index;
         self.play(next_song.song_path().clone())
-    }
-
-    pub fn previous(&mut self) {
-        let prev_song = self
-            .queue
-            .get(self.queue_index - 1)
-            .expect("Index does not exist");
-
-        self.queue_index -= 1;
-        self.play(prev_song.song_path().clone())
     }
 
     pub fn get_song_duration(&mut self) -> u32 {
