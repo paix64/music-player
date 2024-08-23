@@ -1,12 +1,12 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import * as Card from "$lib/components/ui/card/index.js";
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import { Progress } from "$lib/components/ui/progress";
     import { Slider } from "$lib/components/ui/slider";
     import IncesticideCover from "$lib/assets/Incesticide-cover.jpg";
-    import { BaseDirectory } from "@tauri-apps/plugin-fs";
+    import { join, audioDir } from "@tauri-apps/api/path";
+    import { convertFileSrc } from "@tauri-apps/api/core";
 
     import {
         PlayIcon,
@@ -124,6 +124,11 @@
             {/each}
         </Carousel.Content>
     </Carousel.Root>
+    {#await audioDir().then( (dir) => join(dir, "Nirvana/Incesticide/Incesticide-cover.jpg"), )}
+        <p>Loading...</p>
+    {:then path}
+        <img src={convertFileSrc(path)} alt="a" />
+    {/await}
 
     <div class="text-left w-[80%] mx-auto">
         <p class="text-3xl">{song_title}</p>

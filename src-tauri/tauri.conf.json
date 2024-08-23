@@ -17,7 +17,13 @@
             }
         ],
         "security": {
-            "csp": null
+            "csp": "default-src",
+            "assetProtocol": {
+                "enable": true,
+                "scope": [
+                    "*/**"
+                ]
+            }
         }
     },
     "bundle": {
@@ -30,20 +36,5 @@
             "icons/icon.icns",
             "icons/icon.ico"
         ]
-    },
-    "plugins": {
-        "allowlist": {
-            "all": true,
-            "path": {
-                "all": true
-            },
-            "fs": {
-                "all": true,
-                "scope": [
-                    "$AUDIO/*",
-                    "$HOME/*"
-                ]
-            }
-        }
     }
 }

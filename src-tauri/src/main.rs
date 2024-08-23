@@ -2,6 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    let _ = fix_path_env::fix();
     mus_player_lib::run()
 }

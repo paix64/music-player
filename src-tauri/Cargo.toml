@@ -15,7 +15,7 @@ crate-type = ["lib", "cdylib", "staticlib"]
 tauri-build = { version = "2.0.0-rc", features = [] }
 
 [dependencies]
-tauri = { version = "2.0.0-rc", features = [] }
+tauri = { version = "2.0.0-rc", features = ["protocol-asset"] }
 tauri-plugin-shell = "2.0.0-rc"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -25,5 +25,4 @@ lazy_static = "1.5.0"
 tokio = "1.39.3"
 walkdir = "2.5.0"
 lofty = "0.21.0"
-fix-path-env = { git = "https://github.com/tauri-apps/fix-path-env-rs" }
 tauri-plugin-fs = "2.0.0-rc.0"
