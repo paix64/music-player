@@ -34,13 +34,16 @@
     let song_track = "";
     let song_track_total = "";
 
+    let cover_queue: string[] = [];
+
     let song_duration = 100.0;
     let song_position = 0.0;
     let song_length_display = "0:00";
     let song_position_display = "0:00";
 
+    addQueue();
+
     async function playPause() {
-        await addMusic();
         await invoke("play_pause");
         await getCurrentSong();
     }
@@ -48,8 +51,11 @@
         await invoke("skip_music", { toIndex });
         await getCurrentSong();
     }
-    async function addMusic() {
+    async function addQueue() {
         await invoke("add_music");
+    }
+    async function getQueue() {
+        cover_queue = await invoke("get_queue_of_covers");
     }
     async function getCurrentSongInfo(key: string): Promise<any> {
         return await invoke("get_current_song_info", { key });
@@ -76,6 +82,7 @@
     }
 
     async function seekMusic(pos: number) {
+        pos = song_position + 10;
         await invoke("seek_position", { pos });
     }
 
@@ -93,6 +100,7 @@
         if (song_finished) {
             await skipMusic(1);
         }
+        await getQueue();
     }
     setInterval(updateSongPosition, 500);
 </script>
@@ -104,14 +112,14 @@
         class="my-5 mx-auto w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%]"
     >
         <Carousel.Content>
-            {#each Array(5) as _, i (i)}
+            {#each Array(cover_queue.length) as _, i (i)}
                 <Carousel.Item>
                     <div
                         class="p-0 border-4 rounded-3xl overflow-hidden border-slate-700"
                     >
                         <div class="">
                             <img
-                                src={convertFileSrc(song_album_cover)}
+                                src={convertFileSrc(cover_queue[i])}
                                 alt="Album Cover"
                                 class="w-full h-full object-cover"
                             />

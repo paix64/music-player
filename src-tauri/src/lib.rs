@@ -13,7 +13,7 @@ lazy_static! {
 
 #[tauri::command]
 async fn get_song_position() -> u32 {
-    let mut player = PLAYER.lock().await;
+    let player = PLAYER.lock().await;
     player.get_position()
 }
 
@@ -42,6 +42,12 @@ async fn skip_music(to_index: i32) {
 }
 
 #[tauri::command]
+async fn get_queue_of_covers() -> Vec<PathBuf> {
+    let mut player = PLAYER.lock().await;
+    player.queue().iter().map(|song| song.cover().clone()).collect()
+}
+
+#[tauri::command]
 async fn song_finished() -> bool {
     let player = PLAYER.lock().await;
     player.song_finished()
@@ -55,6 +61,8 @@ async fn add_music() {
     player.add_to_queue(music_dir.get(23).unwrap().to_path_buf());
     player.add_to_queue(music_dir.get(20).unwrap().to_path_buf());
     player.add_to_queue(music_dir.get(13).unwrap().to_path_buf());
+    println!("{:#?}", player.queue());
+
 }
 
 #[tauri::command]
@@ -62,26 +70,17 @@ async fn get_current_song_info(key: String) -> String {
     let mut player = PLAYER.lock().await;
     let current_song = player.get_current_song_info().unwrap_or_default();
 
-    if key == "title" {
-        current_song.title.unwrap_or_default()
-    } else if key == "album" {
-        current_song.album.unwrap_or_default()
-    } else if key == "artist" {
-        current_song.artist.unwrap_or_default()
-    } else if key == "genre" {
-        current_song.genre.unwrap_or_default()
-    } else if key == "year" {
-        current_song.year.unwrap_or_default().to_string()
-    } else if key == "track" {
-        current_song.track.unwrap_or_default().to_string()
-    } else if key == "track_total" {
-        current_song.track_total.unwrap_or_default().to_string()
-    } else if key == "duration" {
-        player.get_song_duration().to_string()
-    } else if key == "album_cover" {
-        player.get_album_cover().display().to_string()
-    } else {
-        String::default()
+    match key.as_str() {
+        "title" => current_song.title.unwrap_or_default(),
+        "album" => current_song.album.unwrap_or_default(),
+        "artist" => current_song.artist.unwrap_or_default(),
+        "genre" => current_song.genre.unwrap_or_default(),
+        "year" => current_song.year.unwrap_or_default().to_string(),
+        "track" => current_song.track.unwrap_or_default().to_string(),
+        "track_total" => current_song.track_total.unwrap_or_default().to_string(),
+        "duration" => player.get_song_duration().to_string(),
+        "album_cover" => player.get_album_cover().display().to_string(),
+        _ => String::default(),
     }
 }
 
@@ -114,7 +113,8 @@ pub fn run() {
             get_song_position,
             get_current_song_info,
             seek_position,
-            song_finished
+            song_finished,
+            get_queue_of_covers
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

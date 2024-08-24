@@ -53,7 +53,6 @@ impl Player {
         song.load_metadata();
 
         self.queue.push(song);
-        println!("{:?}", self.queue);
     }
 
     pub fn queue(&mut self) -> &Vec<Song> {
@@ -95,7 +94,7 @@ impl Player {
     }
 
     pub fn song_finished(&self) -> bool {
-        self.sink.empty() && !self.queue.is_empty()
+        self.sink.empty()
     }
 
     pub fn set_volume(&mut self, volume: f32) {
