@@ -16,6 +16,7 @@
   - [ ] Repeat
   - [ ] Based on directories
   - [ ] Based on metadata
+- [ ] Custom CSS
 ### v0.1.1
 - [ ] Playlists
   - [ ] Custom
