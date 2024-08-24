@@ -123,7 +123,7 @@
             {#each Array(cover_queue.length) as _, i (i)}
                 <Carousel.Item>
                     <div
-                        class="p-0 border-4 rounded-3xl overflow-hidden border-slate-700"
+                        class="p-0 border-2 rounded-3xl overflow-hidden border-slate-900"
                     >
                         <div class="">
                             <img
@@ -152,9 +152,9 @@
         Slide {current} of {count}
     </div>
 
-    <div class="text-slate-400">
+    <div class="text-slate-600">
         <button
-            class="my-4 mr-10 rounded-full bg-slate-200 p-3"
+            class="my-4 mr-10 rounded-full shadow-2xl p-3"
             use:shortcut={{ alt: false, code: "KeyN" }}
             on:click={async () => {
                 await skipMusic(-1);
@@ -164,14 +164,14 @@
             <SkipBackIcon size="50rem" />
         </button>
         <button
-            class="my-4 rounded-full bg-slate-200 p-3"
+            class="my-4 rounded-full shadow-2xl p-3"
             use:shortcut={{ shift: false, code: "Space" }}
             on:click={async () => await playPause()}
         >
             <PlayIcon size="50rem" class="ml-1.5" />
         </button>
         <button
-            class="my-4 ml-10 rounded-full bg-slate-200 p-3"
+            class="my-4 ml-10 rounded-full shadow-2xl p-3"
             use:shortcut={{ control: false, code: "KeyM" }}
             on:click={async () => {
                 await skipMusic(1);
