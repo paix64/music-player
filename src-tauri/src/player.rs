@@ -4,14 +4,14 @@ use std::{fs::File, io::BufReader, path::PathBuf, time::Duration, vec};
 
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 
-use song::{MusicMetadata, Song};
+use song::Song;
 
 pub struct Player {
     _output_stream: (OutputStream, OutputStreamHandle),
     sink: Sink,
-    current_song: Option<Song>,
+    pub current_song: Option<Song>,
+    pub queue: Vec<Song>,
     queue_index: i32,
-    queue: Vec<Song>,
     volume: f32,
 }
 
@@ -24,8 +24,8 @@ impl Player {
             _output_stream: o,
             sink: s,
             current_song: None,
-            queue_index: 0,
             queue: vec![],
+            queue_index: 0,
             volume: 0.5,
         }
     }
@@ -42,22 +42,11 @@ impl Player {
         self.sink.play();
     }
 
-    pub fn get_current_song_info(&mut self) -> Option<MusicMetadata> {
-        match &self.current_song {
-            Some(s) => Some(s.music_metadata().clone()),
-            None => None,
-        }
-    }
-
     pub fn add_to_queue(&mut self, path: PathBuf) {
         let mut song = Song::new(path);
         song.load_metadata();
 
         self.queue.push(song);
-    }
-
-    pub fn queue(&mut self) -> &Vec<Song> {
-        &self.queue
     }
 
     pub fn pause_resume(&mut self) {
@@ -73,19 +62,19 @@ impl Player {
         let next_song = self.queue.get(index).expect("Index does not exist");
 
         self.queue_index += to_index;
-        self.play(next_song.song_path().clone())
+        self.play(next_song.get_path())
     }
 
     pub fn get_song_duration(&mut self) -> u32 {
         match &self.current_song {
-            Some(s) => Duration::as_secs(&s.audio_metadata().duration) as u32,
+            Some(s) => Duration::as_secs(&s.duration) as u32,
             None => 0,
         }
     }
 
     pub fn get_album_cover(&mut self) -> PathBuf {
         match &self.current_song {
-            Some(s) => s.cover().clone(),
+            Some(s) => s.get_cover_path(),
             None => PathBuf::default(),
         }
     }

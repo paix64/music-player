@@ -21,7 +21,7 @@ async fn get_song_position() -> u32 {
 async fn play_pause() {
     let mut player = PLAYER.lock().await;
 
-    let first_song = player.queue().get(0).unwrap().song_path().clone();
+    let first_song = player.queue.get(0).unwrap().get_path();
     if player.not_playing() {
         player.play(first_song);
     } else {
@@ -31,7 +31,7 @@ async fn play_pause() {
 
 #[tauri::command]
 async fn seek_position(pos: Duration) {
-    let mut player = PLAYER.lock().await;
+    let player = PLAYER.lock().await;
     player.set_position(pos);
 }
 
@@ -43,8 +43,8 @@ async fn skip_music(to_index: i32) {
 
 #[tauri::command]
 async fn get_queue_of_covers() -> Vec<PathBuf> {
-    let mut player = PLAYER.lock().await;
-    player.queue().iter().map(|song| song.cover().clone()).collect()
+    let player = PLAYER.lock().await;
+    player.queue.iter().map(|song| song.get_cover_path()).collect()
 }
 
 #[tauri::command]
@@ -66,7 +66,7 @@ async fn add_music() {
 #[tauri::command]
 async fn get_current_song_info(key: String) -> String {
     let mut player = PLAYER.lock().await;
-    let current_song = player.get_current_song_info().unwrap_or_default();
+    let current_song = player.current_song.clone().unwrap_or_default();
 
     match key.as_str() {
         "title" => current_song.title.unwrap_or_default(),
