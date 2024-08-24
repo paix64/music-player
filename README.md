@@ -1,7 +1,21 @@
-# Tauri + SvelteKit + TypeScript
-
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
-
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+## Roadmap
+#### v0.1.0
+- [x] Play/Pause song
+  - [ ] Control with Spacebar
+- [x] Display song duration/position
+- [x] Display album cover
+- [x] Song queue
+  - [ ] Repeat one song
+  - [x] Skip to previous/next song
+- [ ] Seek backward/forward
+  - [ ] Control with arrow keys
+- [ ] Volume controls
+  - [ ] Control with arrow keys
+- [ ] Playlists
+  - [ ] Shuffle
+  - [ ] Repeat
+  - [ ] Based on directories
+  - [ ] Based on metadata
+### v0.1.1
+- [ ] Playlists
+  - [ ] Custom
