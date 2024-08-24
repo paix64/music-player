@@ -5,6 +5,7 @@
     import { Progress } from "$lib/components/ui/progress";
     import { Slider } from "$lib/components/ui/slider";
     import { convertFileSrc } from "@tauri-apps/api/core";
+    import { shortcut } from "../shortcut.js";
 
     import {
         PlayIcon,
@@ -54,6 +55,9 @@
     async function addQueue() {
         await invoke("add_music");
     }
+    async function adjustVolume(by: number) {
+        await invoke("adjust_volume", { by });
+    }
     async function getQueue() {
         cover_queue = await invoke("get_queue_of_covers");
     }
@@ -82,7 +86,7 @@
     }
 
     async function seekMusic(pos: number) {
-        pos = song_position + 10;
+        pos = song_position + pos;
         await invoke("seek_position", { pos });
     }
 
@@ -97,7 +101,7 @@
     async function updateSongPosition() {
         await getSongPosition();
         await getQueue();
-        
+
         let song_finished = await invoke("not_playing");
         if (song_duration - song_position < 1 && song_finished) {
             await skipMusic(1);
@@ -151,6 +155,7 @@
     <div class="text-slate-400">
         <button
             class="my-4 mr-10 rounded-full bg-slate-200 p-3"
+            use:shortcut={{ alt: false, code: "KeyN" }}
             on:click={async () => {
                 await skipMusic(-1);
                 api.scrollPrev();
@@ -160,12 +165,14 @@
         </button>
         <button
             class="my-4 rounded-full bg-slate-200 p-3"
+            use:shortcut={{ shift: false, code: "Space" }}
             on:click={async () => await playPause()}
         >
             <PlayIcon size="50rem" class="ml-1.5" />
         </button>
         <button
             class="my-4 ml-10 rounded-full bg-slate-200 p-3"
+            use:shortcut={{ control: false, code: "KeyM" }}
             on:click={async () => {
                 await skipMusic(1);
                 api.scrollNext();
@@ -173,6 +180,32 @@
         >
             <SkipForwardIcon size="50em" />
         </button>
+    </div>
+    <div>
+        <button
+            use:shortcut={{ code: "ArrowRight" }}
+            on:click={async () => {
+                await seekMusic(10);
+            }}
+        ></button>
+        <button
+            use:shortcut={{ code: "ArrowLeft" }}
+            on:click={async () => { 
+                await seekMusic(-10);
+            }}
+        ></button>
+        <button
+            use:shortcut={{ code: "ArrowUp" }}
+            on:click={async () => {
+                await adjustVolume(0.05);
+            }}
+        ></button>
+        <button
+            use:shortcut={{ code: "ArrowDown" }}
+            on:click={async () => {
+                await adjustVolume(-0.05);
+            }}
+        ></button>
     </div>
 </div>
 

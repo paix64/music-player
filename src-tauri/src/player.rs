@@ -87,20 +87,16 @@ impl Player {
         self.sink.empty()
     }
 
-    pub fn set_volume(&mut self, volume: f32) {
-        self.volume += volume;
+    pub fn adjust_volume(&mut self, by: f32) {
+        self.volume += by;
 
-        if self.volume < 0.0 {
-            self.volume = 0.0;
-        } else if self.volume > 1.0 {
-            self.volume = 1.0;
-        }
+        self.volume = self.volume.clamp(0.0, 1.0);
         self.sink.set_volume(self.volume)
     }
 
-    pub fn set_position(&self, seconds: Duration) {
+    pub fn seek_position(&self, seconds: u64) {
         self.sink
-            .try_seek(seconds)
+            .try_seek(Duration::from_secs(seconds))
             .expect("Cannot change player position");
     }
 }

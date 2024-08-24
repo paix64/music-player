@@ -30,9 +30,15 @@ async fn play_pause() {
 }
 
 #[tauri::command]
-async fn seek_position(pos: Duration) {
+async fn seek_position(pos: u64) {
     let player = PLAYER.lock().await;
-    player.set_position(pos);
+    player.seek_position(pos);
+}
+
+#[tauri::command]
+async fn adjust_volume(by: f32) {
+    let mut player = PLAYER.lock().await;
+    player.adjust_volume(by);
 }
 
 #[tauri::command]
@@ -44,7 +50,11 @@ async fn skip_music(to_index: i32) {
 #[tauri::command]
 async fn get_queue_of_covers() -> Vec<PathBuf> {
     let player = PLAYER.lock().await;
-    player.queue.iter().map(|song| song.get_cover_path()).collect()
+    player
+        .queue
+        .iter()
+        .map(|song| song.get_cover_path())
+        .collect()
 }
 
 #[tauri::command]
@@ -111,7 +121,8 @@ pub fn run() {
             get_current_song_info,
             seek_position,
             not_playing,
-            get_queue_of_covers
+            get_queue_of_covers,
+            adjust_volume
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
