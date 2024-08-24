@@ -39,6 +39,7 @@ impl Player {
         let source = Decoder::new(file).unwrap();
 
         self.sink.append(source);
+        self.sink.play();
     }
 
     pub fn get_current_song_info(&mut self) -> Option<MusicMetadata> {
@@ -93,7 +94,7 @@ impl Player {
         Duration::as_secs_f32(&self.sink.get_pos()) as u32
     }
 
-    pub fn song_finished(&self) -> bool {
+    pub fn not_playing(&self) -> bool {
         self.sink.empty()
     }
 

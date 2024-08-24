@@ -22,7 +22,7 @@ async fn play_pause() {
     let mut player = PLAYER.lock().await;
 
     let first_song = player.queue().get(0).unwrap().song_path().clone();
-    if player.song_finished() {
+    if player.not_playing() {
         player.play(first_song);
     } else {
         player.pause_resume();
@@ -48,9 +48,9 @@ async fn get_queue_of_covers() -> Vec<PathBuf> {
 }
 
 #[tauri::command]
-async fn song_finished() -> bool {
+async fn not_playing() -> bool {
     let player = PLAYER.lock().await;
-    player.song_finished()
+    player.not_playing()
 }
 
 #[tauri::command]
@@ -61,8 +61,6 @@ async fn add_music() {
     player.add_to_queue(music_dir.get(23).unwrap().to_path_buf());
     player.add_to_queue(music_dir.get(20).unwrap().to_path_buf());
     player.add_to_queue(music_dir.get(13).unwrap().to_path_buf());
-    println!("{:#?}", player.queue());
-
 }
 
 #[tauri::command]
@@ -113,7 +111,7 @@ pub fn run() {
             get_song_position,
             get_current_song_info,
             seek_position,
-            song_finished,
+            not_playing,
             get_queue_of_covers
         ])
         .run(tauri::generate_context!())

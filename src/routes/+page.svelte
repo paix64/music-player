@@ -96,11 +96,12 @@
 
     async function updateSongPosition() {
         await getSongPosition();
-        let song_finished = await invoke("song_finished");
-        if (song_finished) {
+        await getQueue();
+        
+        let song_finished = await invoke("not_playing");
+        if (song_duration - song_position < 1 && song_finished) {
             await skipMusic(1);
         }
-        await getQueue();
     }
     setInterval(updateSongPosition, 500);
 </script>
@@ -110,6 +111,9 @@
     <Carousel.Root
         bind:api
         class="my-5 mx-auto w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%]"
+        opts={{
+            watchDrag: false,
+        }}
     >
         <Carousel.Content>
             {#each Array(cover_queue.length) as _, i (i)}
