@@ -190,7 +190,7 @@
         ></button>
         <button
             use:shortcut={{ code: "ArrowLeft" }}
-            on:click={async () => { 
+            on:click={async () => {
                 await seekMusic(-10);
             }}
         ></button>

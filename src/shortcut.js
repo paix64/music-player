@@ -1,17 +1,27 @@
 export const shortcut = (node, params) => {
     let handler;
-    const removeHandler = () => window.removeEventListener('keydown', handler), setHandler = () => {
+    let isWaiting = false;
+
+    const removeHandler = () => window.removeEventListener('keydown', handler);
+    const setHandler = () => {
         removeHandler();
-        if (!params)
-            return;
+        if (!params) return;
+
         handler = (e) => {
+            if (isWaiting) return;
             if ((!!params.alt != e.altKey) ||
                 (!!params.shift != e.shiftKey) ||
                 (!!params.control != (e.ctrlKey || e.metaKey)) ||
-                params.code != e.code)
-                return;
+                params.code != e.code) return;
+
             e.preventDefault();
             params.callback ? params.callback() : node.click();
+
+            isWaiting = true;
+            setTimeout(() => {
+                isWaiting = false;
+            }, params.delay || 500);
+            
         };
         window.addEventListener('keydown', handler);
     };
