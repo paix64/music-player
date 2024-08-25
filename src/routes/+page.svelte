@@ -5,6 +5,7 @@
     import { Progress } from "$lib/components/ui/progress";
     import { convertFileSrc } from "@tauri-apps/api/core";
     import { shortcut } from "../shortcut.js";
+    import { adjustVolume, seekMusic, getCurrentSongInfo } from "../service";
 
     import {
         PlayIcon,
@@ -54,15 +55,11 @@
     async function addQueue() {
         await invoke("add_music");
     }
-    async function adjustVolume(by: number) {
-        await invoke("adjust_volume", { by });
-    }
+
     async function getQueue() {
         cover_queue = await invoke("get_queue_of_covers");
     }
-    async function getCurrentSongInfo(key: string): Promise<any> {
-        return await invoke("get_current_song_info", { key });
-    }
+
     async function getCurrentSong() {
         song_title = await getCurrentSongInfo("title");
         song_artist = await getCurrentSongInfo("artist");
@@ -82,11 +79,6 @@
 
             return dur as number;
         });
-    }
-
-    async function seekMusic(pos: number) {
-        pos = song_position + pos;
-        await invoke("seek_position", { pos });
     }
 
     async function getSongPosition(): Promise<any> {
@@ -109,7 +101,7 @@
     setInterval(updateSongPosition, 500);
 </script>
 
-<div class="container non-selectable">
+<div class="main non-selectable">
     <p class="mt-10 text-xl opacity-70">{song_album}</p>
     <Carousel.Root
         bind:api
@@ -208,29 +200,4 @@
     </div>
 </div>
 
-<style>
-    .non-selectable {
-        user-select: none;
-    }
-
-    :root {
-        font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-        font-size: 16px;
-        line-height: 24px;
-        font-weight: 600;
-
-        color: #0f0f0f;
-
-        font-synthesis: none;
-        text-rendering: optimizeLegibility;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        -webkit-text-size-adjust: 100%;
-    }
-
-    .container {
-        display: flex;
-        flex-direction: column;
-        text-align: center;
-    }
-</style>
+<style src="../theme.css"></style>
