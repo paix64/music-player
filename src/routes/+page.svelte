@@ -1,11 +1,19 @@
 <script lang="ts">
-    import { invoke } from "@tauri-apps/api/core";
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import { Progress } from "$lib/components/ui/progress";
     import { convertFileSrc } from "@tauri-apps/api/core";
     import { shortcut } from "../shortcut.js";
-    import { adjustVolume, seekMusic, getCurrentSongInfo } from "../service";
+    import {
+        adjustVolume,
+        seekMusic,
+        getCurrentSongInfo,
+        skipMusic,
+        playPause,
+        getQueue,
+        playerNotPlaying,
+        getSongPosition,
+    } from "../service";
 
     import {
         PlayIcon,
@@ -39,26 +47,8 @@
 
     let song_duration = 100.0;
     let song_position = 0.0;
-    let song_length_display = "0:00";
+    let song_duration_display = "0:00";
     let song_position_display = "0:00";
-
-    addQueue();
-
-    async function playPause() {
-        await invoke("play_pause");
-        await getCurrentSong();
-    }
-    async function skipMusic(toIndex: number) {
-        await invoke("skip_music", { toIndex });
-        await getCurrentSong();
-    }
-    async function addQueue() {
-        await invoke("add_music");
-    }
-
-    async function getQueue() {
-        cover_queue = await invoke("get_queue_of_covers");
-    }
 
     async function getCurrentSong() {
         song_title = await getCurrentSongInfo("title");
@@ -69,32 +59,30 @@
         song_year = await getCurrentSongInfo("year");
         song_track = await getCurrentSongInfo("track");
         song_track_total = await getCurrentSongInfo("track_total");
-        song_duration = await getCurrentSongInfo("duration").then((dur) => {
-            if ((dur as number) == 0) {
-                return 100.0;
-            }
-            const minutes = Math.floor(dur / 60);
-            const seconds = dur % 60;
-            song_length_display = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-
-            return dur as number;
-        });
+        song_duration = await getCurrentSongInfo("duration").then(
+            (duration) => {
+                if ((duration as number) == 0) {
+                    return 100.0;
+                }
+                return duration as number;
+            },
+        );
+        song_duration_display = await displayDuration(song_duration);
     }
 
-    async function getSongPosition(): Promise<any> {
-        song_position = await invoke("get_song_position");
-
-        const minutes = Math.floor(song_position / 60);
-        const seconds = song_position % 60;
-        song_position_display = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    async function displayDuration(of: number) {
+        const minutes = Math.floor(of / 60);
+        const seconds = of % 60;
+        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
     }
 
     async function updateSongPosition() {
-        await getSongPosition();
-        await getQueue();
+        song_position = await getSongPosition();
+        song_position_display = await displayDuration(song_position);
+        cover_queue = await getQueue();
+        await getCurrentSong();
 
-        let song_finished = await invoke("not_playing");
-        if (song_duration - song_position < 1 && song_finished) {
+        if (song_duration - song_position < 1 && (await playerNotPlaying())) {
             await skipMusic(1);
         }
     }
@@ -135,7 +123,9 @@
         <hr class="my-2 border-t border-white" />
         <Progress value={song_position} max={song_duration} class="h-4" />
         <!-- <Slider value={[song_position]} max={song_duration} class="mx-auto" /> -->
-        <p class="opacity-50 text-sm float-right mx-1">{song_length_display}</p>
+        <p class="opacity-50 text-sm float-right mx-1">
+            {song_duration_display}
+        </p>
         <p class="opacity-50 text-sm mx-1">{song_position_display}</p>
     </div>
 
