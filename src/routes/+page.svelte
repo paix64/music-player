@@ -3,7 +3,6 @@
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import { Progress } from "$lib/components/ui/progress";
-    import { Slider } from "$lib/components/ui/slider";
     import { convertFileSrc } from "@tauri-apps/api/core";
     import { shortcut } from "../shortcut.js";
 
