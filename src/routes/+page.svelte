@@ -3,11 +3,15 @@
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import { Progress } from "$lib/components/ui/progress";
     import { convertFileSrc } from "@tauri-apps/api/core";
-    import { shortcut } from "../shortcut.js";
+    import { Shortcut } from "../Shortcut.js";
+
     import {
         PlayIcon,
         SkipForwardIcon,
         SkipBackIcon,
+        PlayCircleIcon,
+        FolderIcon,
+        SearchIcon,
     } from "svelte-feather-icons";
     import {
         adjustVolume,
@@ -27,7 +31,7 @@
     let count = 0;
 
     async function init() {
-        configDir = await appConfigDir();        
+        configDir = await appConfigDir();
     }
 
     $: if (api) {
@@ -95,6 +99,24 @@
 </script>
 
 <div class="main non-selectable">
+    <div
+        class="fixed top-0 left-0 h-screen w-16 rounded text-slate-700 shadow-xl m-0 flex flex-col"
+    >
+        <div class="my-auto">
+            <PlayCircleIcon
+                size="50rem"
+                class="mx-auto my-4 w-12 h-12 hover:text-red-500 transition-all"
+            ></PlayCircleIcon>
+            <FolderIcon
+                size="50rem"
+                class="mx-auto my-4 w-12 h-12 hover:text-red-500 transition-all"
+            ></FolderIcon>
+            <SearchIcon
+                size="50rem"
+                class="mx-auto my-4 w-12 h-12 hover:text-red-500 transition-all"
+            ></SearchIcon>
+        </div>
+    </div>
     <p class="mt-[0.75%] text-xl opacity-70">{song_album}</p>
     <Carousel.Root
         bind:api
@@ -141,7 +163,7 @@
     <div class="text-slate-600">
         <button
             class="my-4 mr-10 rounded-full shadow-2xl p-3"
-            use:shortcut={{ alt: false, code: "KeyN" }}
+            use:Shortcut={{ alt: false, code: "KeyN" }}
             on:click={async () => {
                 await skipMusic(-1);
                 api.scrollPrev();
@@ -151,14 +173,14 @@
         </button>
         <button
             class="my-4 rounded-full shadow-2xl p-3"
-            use:shortcut={{ shift: false, code: "Space" }}
+            use:Shortcut={{ shift: false, code: "Space" }}
             on:click={async () => await playPause()}
         >
             <PlayIcon size="50rem" class="ml-1.5" />
         </button>
         <button
             class="my-4 ml-10 rounded-full shadow-2xl p-3"
-            use:shortcut={{ control: false, code: "KeyM" }}
+            use:Shortcut={{ control: false, code: "KeyM" }}
             on:click={async () => {
                 await skipMusic(1);
                 api.scrollNext();
@@ -169,25 +191,25 @@
     </div>
     <div>
         <button
-            use:shortcut={{ code: "ArrowRight" }}
+            use:Shortcut={{ code: "ArrowRight" }}
             on:click={async () => {
                 await seekPosition(10);
             }}
         ></button>
         <button
-            use:shortcut={{ code: "ArrowLeft" }}
+            use:Shortcut={{ code: "ArrowLeft" }}
             on:click={async () => {
                 await seekPosition(-10);
             }}
         ></button>
         <button
-            use:shortcut={{ code: "ArrowUp" }}
+            use:Shortcut={{ code: "ArrowUp" }}
             on:click={async () => {
                 await adjustVolume(0.05);
             }}
         ></button>
         <button
-            use:shortcut={{ code: "ArrowDown" }}
+            use:Shortcut={{ code: "ArrowDown" }}
             on:click={async () => {
                 await adjustVolume(-0.05);
             }}

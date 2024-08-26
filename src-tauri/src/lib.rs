@@ -68,7 +68,7 @@ async fn add_music() {
     let music_dir = get_music(".");
 
     let mut player = PLAYER.lock().await;
-    player.add_to_queue(music_dir.get(65).unwrap().to_path_buf());
+    player.add_to_queue(music_dir.get(25).unwrap().to_path_buf());
     player.add_to_queue(music_dir.get(13).unwrap().to_path_buf());
     player.add_to_queue(music_dir.get(20).unwrap().to_path_buf());
 }

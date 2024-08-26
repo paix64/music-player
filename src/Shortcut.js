@@ -1,4 +1,4 @@
-export const shortcut = (node, params) => {
+export const Shortcut = (node, params) => {
     let handler;
     let isWaiting = false;
 
