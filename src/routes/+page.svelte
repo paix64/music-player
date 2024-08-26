@@ -5,6 +5,11 @@
     import { convertFileSrc } from "@tauri-apps/api/core";
     import { shortcut } from "../shortcut.js";
     import {
+        PlayIcon,
+        SkipForwardIcon,
+        SkipBackIcon,
+    } from "svelte-feather-icons";
+    import {
         adjustVolume,
         seekPosition,
         getCurrentSongInfo,
@@ -14,19 +19,18 @@
         playerNotPlaying,
         getSongPosition,
     } from "../service";
-
-    import {
-        PlayIcon,
-        SkipForwardIcon,
-        SkipBackIcon,
-    } from "svelte-feather-icons";
+    import { appConfigDir } from "@tauri-apps/api/path";
 
     let api: CarouselAPI;
+    let configDir: string;
     let current = 0;
     let count = 0;
 
+    async function init() {
+        configDir = await appConfigDir();        
+    }
+
     $: if (api) {
-        count = api.scrollSnapList().length;
         current = api.selectedScrollSnap() + 1;
 
         api.on("select", () => {
@@ -86,14 +90,15 @@
             await skipMusic(1);
         }
     }
+    init();
     setInterval(updateSongPosition, 500);
 </script>
 
 <div class="main non-selectable">
-    <p class="mt-10 text-xl opacity-70">{song_album}</p>
+    <p class="mt-[0.75%] text-xl opacity-70">{song_album}</p>
     <Carousel.Root
         bind:api
-        class="my-5 mx-auto w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%]"
+        class="my-[1.25%] mx-auto w-[80%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[40%]"
         opts={{
             watchDrag: false,
         }}

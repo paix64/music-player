@@ -36,7 +36,7 @@ impl Song {
             year: None,
             track: None,
             track_total: None,
-            duration: Duration::from_secs(0),
+            duration: Duration::default(),
             channels: None,
             sample_rate: None,
             audio_bitrate: None,
@@ -45,8 +45,6 @@ impl Song {
     }
 
     pub fn load_metadata(&mut self) {
-        println!("Loading metadata for {:?}", self.path);
-
         let tag_file = Probe::open(&self.path)
             .expect("ERROR: Bad path provided!")
             .read()

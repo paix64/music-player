@@ -1,7 +1,7 @@
 {
     "productName": "mus-player",
     "version": "0.1.0",
-    "identifier": "com.mus-player.app",
+    "identifier": "mus-player",
     "build": {
         "beforeDevCommand": "bun run dev",
         "devUrl": "http://localhost:1420",

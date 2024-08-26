@@ -14,7 +14,7 @@ export async function seekPosition(nSeconds: number) {
     await invoke("seek_position", { nSeconds });
 }
 
-export async function getSongPosition(): Promise<any> {
+export async function getSongPosition(): Promise<number> {
     return await invoke("get_song_position");
 }
 
@@ -34,6 +34,6 @@ export async function getQueue(): Promise<any> {
     return await invoke("get_queue_of_covers");
 }
 
-export async function playerNotPlaying(): Promise<any> {
+export async function playerNotPlaying(): Promise<boolean> {
     return await invoke("not_playing");
 }
