@@ -10,9 +10,8 @@ export async function adjustVolume(by: number) {
     await invoke("adjust_volume", { by });
 }
 
-export async function seekMusic(pos: number) {
-    pos = await getSongPosition() + pos;
-    await invoke("seek_position", { pos });
+export async function seekPosition(nSeconds: number) {
+    await invoke("seek_position", { nSeconds });
 }
 
 export async function getSongPosition(): Promise<any> {

@@ -65,14 +65,14 @@ impl Player {
         self.play(next_song.get_path())
     }
 
-    pub fn get_song_duration(&mut self) -> u32 {
+    pub fn get_song_duration(&self) -> u32 {
         match &self.current_song {
             Some(s) => Duration::as_secs(&s.duration) as u32,
             None => 0,
         }
     }
 
-    pub fn get_album_cover(&mut self) -> PathBuf {
+    pub fn get_album_cover(&self) -> PathBuf {
         match &self.current_song {
             Some(s) => s.get_cover_path(),
             None => PathBuf::default(),
@@ -94,9 +94,12 @@ impl Player {
         self.sink.set_volume(self.volume)
     }
 
-    pub fn seek_position(&self, seconds: u64) {
+    pub fn seek_position(&self, n_seconds: i32) {
+        let mut new_position = self.get_position() as i32 + n_seconds;
+
+        new_position = new_position.clamp(0, self.get_song_duration() as i32);
         self.sink
-            .try_seek(Duration::from_secs(seconds))
+            .try_seek(Duration::from_secs(new_position as u64))
             .expect("Cannot change player position");
     }
 }

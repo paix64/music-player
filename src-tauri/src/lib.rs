@@ -3,7 +3,7 @@ mod player;
 
 use lazy_static::lazy_static;
 use player::Player;
-use std::{path::PathBuf, time::Duration};
+use std::path::PathBuf;
 use tokio::sync::Mutex;
 use walkdir::WalkDir;
 
@@ -30,9 +30,9 @@ async fn play_pause() {
 }
 
 #[tauri::command]
-async fn seek_position(pos: u64) {
+async fn seek_position(n_seconds: i32) {
     let player = PLAYER.lock().await;
-    player.seek_position(pos);
+    player.seek_position(n_seconds);
 }
 
 #[tauri::command]
@@ -75,7 +75,7 @@ async fn add_music() {
 
 #[tauri::command]
 async fn get_current_song_info(key: String) -> String {
-    let mut player = PLAYER.lock().await;
+    let player = PLAYER.lock().await;
     let current_song = player.current_song.clone().unwrap_or_default();
 
     match key.as_str() {

@@ -6,7 +6,7 @@
     import { shortcut } from "../shortcut.js";
     import {
         adjustVolume,
-        seekMusic,
+        seekPosition,
         getCurrentSongInfo,
         skipMusic,
         playPause,
@@ -166,13 +166,13 @@
         <button
             use:shortcut={{ code: "ArrowRight" }}
             on:click={async () => {
-                await seekMusic(10);
+                await seekPosition(10);
             }}
         ></button>
         <button
             use:shortcut={{ code: "ArrowLeft" }}
             on:click={async () => {
-                await seekMusic(-10);
+                await seekPosition(-10);
             }}
         ></button>
         <button
