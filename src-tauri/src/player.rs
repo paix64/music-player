@@ -1,10 +1,7 @@
-mod song;
-
 use std::{fs::File, io::BufReader, path::PathBuf, time::Duration, vec};
-
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 
-use song::Song;
+use crate::song::Song;
 
 pub struct Player {
     _output_stream: (OutputStream, OutputStreamHandle),

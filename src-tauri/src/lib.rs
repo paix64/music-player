@@ -1,5 +1,7 @@
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 mod player;
+mod playlist;
+mod song;
 
 use lazy_static::lazy_static;
 use player::Player;
