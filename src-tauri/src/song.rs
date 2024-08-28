@@ -16,7 +16,7 @@ pub struct Song {
     pub genre: Option<String>,
     pub year: Option<u32>,
     pub track: Option<u32>,
-    pub track_total: Option<u32>,
+
     pub duration: Duration,
     pub channels: Option<u8>,
     pub sample_rate: Option<u32>,
@@ -35,7 +35,6 @@ impl Song {
             genre: None,
             year: None,
             track: None,
-            track_total: None,
             duration: Duration::default(),
             channels: None,
             sample_rate: None,
@@ -66,7 +65,6 @@ impl Song {
         self.artist = metadata_tag.artist().map(|s| s.to_string());
         self.genre = metadata_tag.genre().map(|s| s.to_string());
         self.track = metadata_tag.track().map(|s| s as u32);
-        self.track_total = metadata_tag.track_total().map(|s| s as u32);
         self.year = metadata_tag.year().map(|s| s as u32);
         self.cover_path = Song::set_cover_path(".", self.album.clone().unwrap_or_default());
     }

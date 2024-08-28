@@ -24,6 +24,7 @@ export async function getCurrentSongInfo(key: string): Promise<any> {
 
 async function addQueue() {
     await invoke("add_music");
+    await invoke("create_playlists");
 }
 
 export async function skipMusic(toIndex: number) {

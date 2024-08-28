@@ -3,9 +3,16 @@ mod player;
 mod playlist;
 mod song;
 
+use dirs::config_dir;
 use lazy_static::lazy_static;
 use player::Player;
-use std::path::PathBuf;
+use playlist::Playlist;
+use song::Song;
+use std::{
+    fs::{read_to_string, OpenOptions},
+    io::Write,
+    path::PathBuf,
+};
 use tokio::sync::Mutex;
 use walkdir::WalkDir;
 
@@ -67,7 +74,7 @@ async fn not_playing() -> bool {
 
 #[tauri::command]
 async fn add_music() {
-    let music_dir = get_music(".");
+    let music_dir = get_audio_from_path(".");
 
     let mut player = PLAYER.lock().await;
     player.add_to_queue(music_dir.get(25).unwrap().to_path_buf());
@@ -87,15 +94,13 @@ async fn get_current_song_info(key: String) -> String {
         "genre" => current_song.genre.unwrap_or_default(),
         "year" => current_song.year.unwrap_or_default().to_string(),
         "track" => current_song.track.unwrap_or_default().to_string(),
-        "track_total" => current_song.track_total.unwrap_or_default().to_string(),
         "duration" => player.get_song_duration().to_string(),
         "album_cover" => player.get_album_cover().display().to_string(),
         _ => String::default(),
     }
 }
 
-#[tauri::command]
-fn get_music(_dir: &str) -> Vec<PathBuf> {
+fn get_audio_from_path(_dir: &str) -> Vec<PathBuf> {
     let paths = dirs::audio_dir().unwrap();
     let mut path_list: Vec<PathBuf> = vec![];
 
@@ -106,8 +111,46 @@ fn get_music(_dir: &str) -> Vec<PathBuf> {
             path_list.push(entry.path().to_owned());
         }
     }
-
     path_list
+}
+
+#[tauri::command]
+async fn create_playlists() {
+    let player = PLAYER.lock().await;
+    let songs = get_audio_from_path("dir");
+
+    for song in songs {
+        let info = player.get_song_info(song);
+        process_playlist_type("Album ".to_owned() + &info.album.unwrap_or_default());
+        process_playlist_type("Artist ".to_owned() + &info.artist.unwrap_or_default());
+        process_playlist_type("Genre ".to_owned() + &info.genre.unwrap_or_default());
+    }
+}
+
+fn process_playlist_type(t: String) {
+    let app_cache_path = format!(
+        "{}/burock/cache.bu",
+        config_dir().unwrap().display().to_string()
+    );
+    let cache = read_to_string(&app_cache_path).unwrap_or_default();
+
+    if t == String::default() {
+        return;
+    }
+    if cache.contains(&t) {
+        return;
+    }
+
+    println!("{app_cache_path}");
+    let mut cache_file = OpenOptions::new()
+        .append(true)
+        .write(true)
+        .create(true)
+        .open(&app_cache_path)
+        .unwrap();
+    let wrt = t + "\n";
+
+    let _ = cache_file.write_all(wrt.as_bytes());
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -115,7 +158,6 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
-            get_music,
             skip_music,
             add_music,
             play_pause,
@@ -124,7 +166,8 @@ pub fn run() {
             seek_position,
             not_playing,
             get_queue_of_covers,
-            adjust_volume
+            adjust_volume,
+            create_playlists
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

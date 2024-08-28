@@ -49,7 +49,6 @@
     let song_genre = "";
     let song_year = "";
     let song_track = "";
-    let song_track_total = "";
 
     let cover_queue: string[] = [];
 
@@ -66,7 +65,6 @@
         song_genre = await getCurrentSongInfo("genre");
         song_year = await getCurrentSongInfo("year");
         song_track = await getCurrentSongInfo("track");
-        song_track_total = await getCurrentSongInfo("track_total");
         song_duration = await getCurrentSongInfo("duration").then(
             (duration) => {
                 if ((duration as number) == 0) {

@@ -46,6 +46,12 @@ impl Player {
         self.queue.push(song);
     }
 
+    pub fn get_song_info(&self, path: PathBuf) -> Song {
+        let mut song = Song::new(path);
+        song.load_metadata();
+        song
+    }
+
     pub fn pause_resume(&mut self) {
         if self.sink.is_paused() {
             self.sink.play()
