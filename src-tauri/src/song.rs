@@ -4,9 +4,10 @@ use std::time::Duration;
 use lofty::file::{AudioFile, TaggedFileExt};
 use lofty::probe::Probe;
 use lofty::tag::Accessor;
+use serde::Serialize;
 use walkdir::WalkDir;
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Serialize)]
 pub struct Song {
     path: PathBuf,
     cover_path: Option<PathBuf>,

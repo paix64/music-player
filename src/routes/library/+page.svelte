@@ -1,23 +1,36 @@
 <script>
     import Navigation from "$lib/components/Navigation.svelte";
-    let message = "Hello, Svelte!";
+    import { getAlbumPlaylist } from "../../service";
+
+    getAlbumPlaylist("Nevermind").then((res) => {
+        console.log(res);
+    });
 </script>
 
-<div>
+<div class="main">
     <Navigation />
-    <h1>{message}</h1>
+    <p>Albums</p>
+    <div class="flex">
+        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
+        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
+        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
+        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
+        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
+        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
+        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
+        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
+        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
+    </div>
 </div>
 
 <style>
     :root {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
     }
-
-    h1 {
+    .main {
+        margin-left: 5rem;
+        margin-top: 2rem;
+    }
+    p {
         font-size: 2rem;
-        color: #333;
     }
 </style>

@@ -1,7 +1,10 @@
 use std::path::PathBuf;
 
+use serde::Serialize;
+
 use crate::song::Song;
 
+#[derive(Debug, Serialize)]
 pub struct Playlist {
     name: String,
     cover_path: PathBuf,

@@ -127,6 +127,44 @@ async fn create_playlists() {
     }
 }
 
+async fn get_songs_of_album(album: &String) -> Vec<Song> {
+    let player = PLAYER.lock().await;
+    let songs = get_audio_from_path("dir");
+    let mut song_list = vec![];
+
+    for song in songs {
+        let info = player.get_song_info(song);
+        if &info.album.clone().unwrap_or_default() == album {
+            song_list.push(info);
+        }
+    }
+    song_list
+}
+
+#[tauri::command]
+async fn get_album_playlist(album: String) -> Playlist {
+    let app_cache_path = format!(
+        "{}/burock/cache.bu",
+        config_dir().unwrap().display().to_string()
+    );
+    let cache = read_to_string(&app_cache_path).unwrap_or_default();
+    let song_list: Vec<Song> = get_songs_of_album(&album).await;
+    let mut playlist = Playlist::new();
+
+    for l in cache.lines() {
+        let mut l = l.split(" ");
+        println!("{:?}", l.next());
+        if l.next().unwrap_or_default() == &album {
+            playlist = Playlist::new_playlist_from(
+                &l.next().unwrap_or_default().to_owned(),
+                song_list.clone(),
+            );
+        }
+    }
+    println!("{:#?}", playlist);
+    playlist
+}
+
 fn process_playlist_type(t: String) {
     let app_cache_path = format!(
         "{}/burock/cache.bu",
@@ -167,7 +205,8 @@ pub fn run() {
             not_playing,
             get_queue_of_covers,
             adjust_volume,
-            create_playlists
+            create_playlists,
+            get_album_playlist
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -38,3 +38,7 @@ export async function getQueue(): Promise<any> {
 export async function playerNotPlaying(): Promise<boolean> {
     return await invoke("not_playing");
 }
+
+export async function getAlbumPlaylist(album: String): Promise<any> {
+    return await invoke("get_playlists", { album });
+}
