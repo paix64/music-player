@@ -148,8 +148,8 @@ fn process_playlist_type(t: String) {
         .create(true)
         .open(&app_cache_path)
         .unwrap();
-    let wrt = t + "\n";
 
+    let wrt = t + "\n";
     let _ = cache_file.write_all(wrt.as_bytes());
 }
 

@@ -25,10 +25,10 @@ impl Playlist {
         }
     }
 
-    pub fn new_genre_playlist_from(genre: &String, song_list: Vec<Song>) -> Self {
+    pub fn new_playlist_from(this: &String, song_list: Vec<Song>) -> Self {
         let first_song_cover = song_list.get(0).unwrap().get_cover_path();
         Self {
-            name: genre.to_owned(),
+            name: this.to_owned(),
             cover_path: first_song_cover,
             song_list,
         }

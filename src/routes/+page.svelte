@@ -4,14 +4,12 @@
     import { Progress } from "$lib/components/ui/progress";
     import { convertFileSrc } from "@tauri-apps/api/core";
     import { Shortcut } from "../Shortcut.js";
+    import Navigation from "$lib/components/Navigation.svelte";
 
     import {
         PlayIcon,
         SkipForwardIcon,
         SkipBackIcon,
-        PlayCircleIcon,
-        FolderIcon,
-        SearchIcon,
     } from "svelte-feather-icons";
     import {
         adjustVolume,
@@ -97,24 +95,7 @@
 </script>
 
 <div class="main non-selectable">
-    <div
-        class="fixed top-0 left-0 h-screen w-16 rounded text-slate-700 shadow-xl m-0 flex flex-col"
-    >
-        <div class="my-auto">
-            <PlayCircleIcon
-                size="50rem"
-                class="mx-auto my-4 w-12 h-12 hover:text-red-500 transition-all"
-            ></PlayCircleIcon>
-            <FolderIcon
-                size="50rem"
-                class="mx-auto my-4 w-12 h-12 hover:text-red-500 transition-all"
-            ></FolderIcon>
-            <SearchIcon
-                size="50rem"
-                class="mx-auto my-4 w-12 h-12 hover:text-red-500 transition-all"
-            ></SearchIcon>
-        </div>
-    </div>
+    <Navigation />
     <p class="mt-[0.75%] text-xl opacity-70">{song_album}</p>
     <Carousel.Root
         bind:api
