@@ -20,3 +20,5 @@
 ### v0.1.1
 - [ ] Playlists
   - [ ] Custom
+
+- Took 38 hours to build
