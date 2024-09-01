@@ -5,6 +5,10 @@
     getAlbumPlaylist("Nevermind").then((res) => {
         console.log(res);
     });
+
+    getAlbumPlaylist("In Utero").then((res) => {
+        console.log(res);
+    });
 </script>
 
 <div class="main">

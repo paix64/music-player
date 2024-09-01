@@ -82,7 +82,7 @@ impl Song {
         let paths = dirs::audio_dir().unwrap();
         let mut cover_path = None;
 
-        let cover_file_names = vec![format!("{album}-cover.jpg"), format!("{album}-cover.png")];
+        let cover_file_names = vec![format!("{album} cover.jpg"), format!("{album} cover.png")];
 
         for entry in WalkDir::new(paths).into_iter().filter_map(|e| e.ok()) {
             let file_name = entry.file_name().to_str().unwrap();

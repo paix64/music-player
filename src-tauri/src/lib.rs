@@ -9,15 +9,17 @@ use player::Player;
 use playlist::Playlist;
 use song::Song;
 use std::{
-    fs::{read_to_string, OpenOptions},
+    fs::{self, read_to_string, OpenOptions},
     io::Write,
     path::PathBuf,
+    sync::Arc,
 };
 use tokio::sync::Mutex;
 use walkdir::WalkDir;
 
 lazy_static! {
     static ref PLAYER: Mutex<Player> = Mutex::new(Player::new());
+    static ref APP_NAME: Arc<String> = Arc::new(String::from("burock"));
 }
 
 #[tauri::command]
@@ -144,31 +146,35 @@ async fn get_songs_of_album(album: &String) -> Vec<Song> {
 #[tauri::command]
 async fn get_album_playlist(album: String) -> Playlist {
     let app_cache_path = format!(
-        "{}/burock/cache.bu",
-        config_dir().unwrap().display().to_string()
+        "{}/{}/cache.bu",
+        config_dir().unwrap().display().to_string(),
+        Arc::clone(&APP_NAME)
     );
     let cache = read_to_string(&app_cache_path).unwrap_or_default();
     let song_list: Vec<Song> = get_songs_of_album(&album).await;
     let mut playlist = Playlist::new();
 
     for l in cache.lines() {
-        let mut l = l.split(" ");
-        println!("{:?}", l.next());
-        if l.next().unwrap_or_default() == &album {
+        let mut l = l.split_whitespace();
+        let type_of = l.next().unwrap_or_default();
+        let album_of = &l.clone().collect::<Vec<&str>>().join(&String::from(" "));
+        println!("{:?} {:?}", type_of, album_of);
+        if album_of == &album {
             playlist = Playlist::new_playlist_from(
-                &l.next().unwrap_or_default().to_owned(),
+                &song_list.get(0).unwrap().album.clone().unwrap(),
                 song_list.clone(),
             );
         }
     }
-    println!("{:#?}", playlist);
+    println!("{:?}", playlist);
     playlist
 }
 
 fn process_playlist_type(t: String) {
     let app_cache_path = format!(
-        "{}/burock/cache.bu",
-        config_dir().unwrap().display().to_string()
+        "{}/{}/cache.bu",
+        config_dir().unwrap().display().to_string(),
+        Arc::clone(&APP_NAME)
     );
     let cache = read_to_string(&app_cache_path).unwrap_or_default();
 
@@ -180,6 +186,13 @@ fn process_playlist_type(t: String) {
     }
 
     println!("{app_cache_path}");
+
+    let _ = fs::create_dir_all(format!(
+        "{}/{}",
+        config_dir().unwrap().display().to_string(),
+        Arc::clone(&APP_NAME)
+    ));
+
     let mut cache_file = OpenOptions::new()
         .append(true)
         .write(true)
