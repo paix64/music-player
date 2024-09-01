@@ -117,7 +117,7 @@ fn get_audio_from_path(_dir: &str) -> Vec<PathBuf> {
 }
 
 #[tauri::command]
-async fn create_playlists() {
+async fn create_playlist_types() {
     let player = PLAYER.lock().await;
     let songs = get_audio_from_path("dir");
 
@@ -143,7 +143,6 @@ async fn get_songs_of_album(album: &String) -> Vec<Song> {
     song_list
 }
 
-#[tauri::command]
 async fn get_album_playlist(album: String) -> Playlist {
     let app_cache_path = format!(
         "{}/{}/cache.bu",
@@ -166,8 +165,29 @@ async fn get_album_playlist(album: String) -> Playlist {
             );
         }
     }
-    println!("{:?}", playlist);
     playlist
+}
+
+#[tauri::command]
+async fn get_album_playlists() -> Vec<Playlist> {
+    let app_cache_path = format!(
+        "{}/{}/cache.bu",
+        config_dir().unwrap().display().to_string(),
+        Arc::clone(&APP_NAME)
+    );
+    let cache = read_to_string(&app_cache_path).unwrap_or_default();
+    let mut playlist_list = vec![];
+
+    for l in cache.lines() {
+        let mut l = l.split_whitespace();
+        let type_of = l.next().unwrap_or_default();
+        let album_of = l.clone().collect::<Vec<&str>>().join(&String::from(" "));
+        if type_of == "Album" {
+            playlist_list.push(get_album_playlist(album_of).await)
+        }
+    }
+    println!("{:?}",playlist_list);
+    playlist_list
 }
 
 fn process_playlist_type(t: String) {
@@ -218,8 +238,8 @@ pub fn run() {
             not_playing,
             get_queue_of_covers,
             adjust_volume,
-            create_playlists,
-            get_album_playlist
+            create_playlist_types,
+            get_album_playlists
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

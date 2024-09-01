@@ -19,7 +19,7 @@
 
 .main {
     display: flex;
-    flex-direction: column;
     text-align: center;
     margin-left: 4rem;
+    font-size: xx-large;
 }

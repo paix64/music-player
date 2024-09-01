@@ -1,40 +1,33 @@
 <script>
     import Navigation from "$lib/components/Navigation.svelte";
-    import { getAlbumPlaylist } from "../../service";
+    import { getAlbumPlaylists } from "../../service";
+    import { convertFileSrc } from "@tauri-apps/api/core";
 
-    getAlbumPlaylist("Nevermind").then((res) => {
-        console.log(res);
-    });
+    let albums = [];
+    async function getAlbums() {
+        albums = await getAlbumPlaylists();
+    }
 
-    getAlbumPlaylist("In Utero").then((res) => {
-        console.log(res);
-    });
+    getAlbums();
+    console.log(albums);
 </script>
 
-<div class="main">
+<div class="main flex-col non-selectable">
     <Navigation />
-    <p>Albums</p>
-    <div class="flex">
-        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
-        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
-        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
-        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
-        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
-        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
-        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
-        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
-        <img class="mx-8 my-8" src="/favicon.png" alt="a" />
+    <p class="my-4">Albums</p>
+
+    <div class="flex flex-row ml-8">
+        {#each Array(albums.length) as _, i (i)}
+            <div
+                class="p-0 m-4 border-2 rounded-3xl overflow-hidden border-slate-900 size-80"
+            >
+                <img
+                    src={convertFileSrc(albums[i].song_list[0].cover_path)}
+                    alt="Album Cover"
+                />
+            </div>
+        {/each}
     </div>
 </div>
 
-<style>
-    :root {
-    }
-    .main {
-        margin-left: 5rem;
-        margin-top: 2rem;
-    }
-    p {
-        font-size: 2rem;
-    }
-</style>
+<style src="../../theme.css"></style>

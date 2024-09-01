@@ -24,7 +24,7 @@ export async function getCurrentSongInfo(key: string): Promise<any> {
 
 async function addQueue() {
     await invoke("add_music");
-    await invoke("create_playlists");
+    await invoke("create_playlist_types");
 }
 
 export async function skipMusic(toIndex: number) {
@@ -39,6 +39,6 @@ export async function playerNotPlaying(): Promise<boolean> {
     return await invoke("not_playing");
 }
 
-export async function getAlbumPlaylist(album: String): Promise<any> {
-    return await invoke("get_album_playlist", { album });
+export async function getAlbumPlaylists(): Promise<any> {
+    return await invoke("get_album_playlists");
 }

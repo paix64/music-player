@@ -94,7 +94,7 @@
     setInterval(updateSongPosition, 500);
 </script>
 
-<div class="main non-selectable">
+<div class="main non-selectable flex-col">
     <Navigation />
     <p class="mt-[0.75%] text-xl opacity-70">{song_album}</p>
     <Carousel.Root
