@@ -42,3 +42,7 @@ export async function playerNotPlaying(): Promise<boolean> {
 export async function getAlbumPlaylists(): Promise<any> {
     return await invoke("get_album_playlists");
 }
+
+export async function playAlbumPlaylist(album: string) {
+    await invoke("play_album_playlist", { album });
+}

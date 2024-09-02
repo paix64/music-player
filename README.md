@@ -22,5 +22,6 @@
 - [ ] Playlists
   - [ ] Custom
 - [ ] MPRIS support  
+- [ ] Youtube download/search support
 
-- Took 44 hours to build
+- Took 45.5 hours to build

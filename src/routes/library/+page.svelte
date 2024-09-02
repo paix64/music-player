@@ -1,6 +1,6 @@
 <script lang="ts">
     import Navigation from "$lib/components/Navigation.svelte";
-    import { getAlbumPlaylists } from "../../service";
+    import { getAlbumPlaylists, playAlbumPlaylist } from "../../service";
     import { convertFileSrc } from "@tauri-apps/api/core";
 
     let albums: any[] = [];
@@ -18,14 +18,23 @@
 
     <div class="flex flex-row flex-wrap ml-12">
         {#each Array(albums.length) as _, i (i)}
-            <div
-                class="p-0 m-4 border-2 rounded-3xl overflow-hidden border-slate-900 size-80"
+            <button
+                on:click={() => {
+                    playAlbumPlaylist(albums[i].name);
+                    console.log(albums[i].name);
+                }}
             >
-                <img
-                    src={convertFileSrc(albums[i].song_list[0].cover_path)}
-                    alt="Album Cover"
-                />
-            </div>
+                <div
+                    class="p-0 m-4 border-2 rounded-3xl overflow-hidden border-slate-900 size-80"
+                >
+                    <img
+                        src={convertFileSrc(albums[i].song_list[0].cover_path)}
+                        alt="Album Cover"
+                        class="h-full object-cover"
+                    />
+                </div>
+                <p class="mb-4 text-2xl">{albums[i].name}</p>
+            </button>
         {/each}
     </div>
 </div>
