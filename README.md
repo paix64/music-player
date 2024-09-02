@@ -15,10 +15,12 @@
   - [ ] Shuffle
   - [ ] Repeat
   - [ ] Based on directories
-  - [ ] Based on metadata
+  - [x] Based on metadata
 - [ ] Custom CSS
+
 ### v0.1.1
 - [ ] Playlists
   - [ ] Custom
+- [ ] MPRIS support  
 
 - Took 44 hours to build
