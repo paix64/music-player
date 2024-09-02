@@ -160,7 +160,13 @@ async fn get_album_playlist(album: String) -> Playlist {
         println!("{:?} {:?}", type_of, album_of);
         if album_of == &album {
             playlist = Playlist::new_playlist_from(
-                &song_list.get(0).unwrap().album.clone().unwrap(),
+                &song_list
+                    .get(0)
+                    .cloned()
+                    .unwrap_or_default()
+                    .album
+                    .clone()
+                    .unwrap_or_default(),
                 song_list.clone(),
             );
         }
@@ -183,10 +189,13 @@ async fn get_album_playlists() -> Vec<Playlist> {
         let type_of = l.next().unwrap_or_default();
         let album_of = l.clone().collect::<Vec<&str>>().join(&String::from(" "));
         if type_of == "Album" {
-            playlist_list.push(get_album_playlist(album_of).await)
+            let playlist = get_album_playlist(album_of).await;
+            if playlist.cover_path.exists() {
+                playlist_list.push(playlist)
+            }
         }
     }
-    println!("{:?}",playlist_list);
+    println!("{:?}", playlist_list);
     playlist_list
 }
 

@@ -6,9 +6,9 @@ use crate::song::Song;
 
 #[derive(Debug, Serialize)]
 pub struct Playlist {
-    name: String,
-    cover_path: PathBuf,
-    song_list: Vec<Song>,
+    pub name: String,
+    pub cover_path: PathBuf,
+    pub song_list: Vec<Song>,
 }
 
 impl Playlist {
@@ -21,7 +21,11 @@ impl Playlist {
     }
 
     pub fn new_playlist_from(this: &String, song_list: Vec<Song>) -> Self {
-        let first_song_cover = song_list.get(0).unwrap().get_cover_path();
+        let first_song_cover = song_list
+            .get(0)
+            .cloned()
+            .unwrap_or_default()
+            .get_cover_path();
         Self {
             name: this.to_owned(),
             cover_path: first_song_cover,
