@@ -75,16 +75,6 @@ async fn not_playing() -> bool {
 }
 
 #[tauri::command]
-async fn add_music() {
-    let music_dir = get_audio_from_path(".");
-
-    let mut player = PLAYER.lock().await;
-    player.add_to_queue(music_dir.get(25).unwrap().to_path_buf());
-    player.add_to_queue(music_dir.get(13).unwrap().to_path_buf());
-    player.add_to_queue(music_dir.get(20).unwrap().to_path_buf());
-}
-
-#[tauri::command]
 async fn get_current_song_info(key: String) -> String {
     let player = PLAYER.lock().await;
     let current_song = player.current_song.clone().unwrap_or_default();
@@ -244,7 +234,6 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             skip_music,
-            add_music,
             play_pause,
             get_song_position,
             get_current_song_info,

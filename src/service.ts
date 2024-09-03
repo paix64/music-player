@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 
-addQueue();
+cachePlaylistTypes();
 
 export async function playPause() {
     await invoke("play_pause");
@@ -22,8 +22,7 @@ export async function getCurrentSongInfo(key: string): Promise<any> {
     return await invoke("get_current_song_info", { key });
 }
 
-async function addQueue() {
-    await invoke("add_music");
+async function cachePlaylistTypes() {
     await invoke("create_playlist_types");
 }
 
