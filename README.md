@@ -25,3 +25,10 @@
 - [ ] Youtube download/search support
    
 - Took 47.75 hours to build
+
+| Format | Seeking Support | Cover Art Support |
+|--------|-----------------|-------------------|
+| MP3    | Yes             | Yes               |
+| OGG    | Yes             | Yes               |
+| FLAC   | No              | Yes               |
+| M4A    | Yes             | Yes               |
