@@ -38,6 +38,14 @@ export async function playerNotPlaying(): Promise<boolean> {
     return await invoke("not_playing");
 }
 
+export async function getPlayerRepeat(): Promise<boolean> {
+    return await invoke("get_repeat");
+}
+
+export async function togglePlayerRepeat() {
+    await invoke("toggle_repeat");
+}
+
 export async function getAlbumPlaylists(): Promise<any> {
     return await invoke("get_album_playlists");
 }

@@ -1,5 +1,5 @@
-use std::{fs::File, io::BufReader, path::PathBuf, time::Duration, vec};
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
+use std::{fs::File, io::BufReader, path::PathBuf, time::Duration, vec};
 
 use crate::song::Song;
 
@@ -8,6 +8,7 @@ pub struct Player {
     sink: Sink,
     pub current_song: Option<Song>,
     pub queue: Vec<Song>,
+    pub repeat_current_song: bool,
     queue_index: i32,
     volume: f32,
 }
@@ -22,6 +23,7 @@ impl Player {
             sink: s,
             current_song: None,
             queue: vec![],
+            repeat_current_song: false,
             queue_index: 0,
             volume: 0.5,
         }

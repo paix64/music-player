@@ -10,6 +10,7 @@
         PlayIcon,
         SkipForwardIcon,
         SkipBackIcon,
+        RepeatIcon,
     } from "svelte-feather-icons";
     import {
         adjustVolume,
@@ -20,6 +21,8 @@
         getQueue,
         playerNotPlaying,
         getSongPosition,
+        getPlayerRepeat,
+        togglePlayerRepeat,
     } from "../service";
     import { appConfigDir } from "@tauri-apps/api/path";
 
@@ -86,8 +89,18 @@
         cover_queue = await getQueue();
         await getCurrentSong();
 
-        if (song_duration - song_position < 1 && (await playerNotPlaying())) {
+        if (
+            song_duration - song_position < 1 &&
+            (await playerNotPlaying()) &&
+            !(await getPlayerRepeat())
+        ) {
             await skipMusic(1);
+        } else if (
+            song_duration - song_position < 1 &&
+            !(await playerNotPlaying()) &&
+            (await getPlayerRepeat())
+        ) {
+            skipMusic(0);
         }
     }
     init();
@@ -166,6 +179,15 @@
             }}
         >
             <SkipForwardIcon size="50em" />
+        </button>
+        <button
+            class="my-4 ml-10 rounded-full shadow-2xl p-3"
+            use:Shortcut={{ control: false, code: "KeyR" }}
+            on:click={async () => {
+                await togglePlayerRepeat();
+            }}
+        >
+            <RepeatIcon size="50em" />
         </button>
     </div>
     <div>

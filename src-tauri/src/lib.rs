@@ -119,6 +119,18 @@ async fn create_playlist_types() {
     }
 }
 
+#[tauri::command]
+async fn get_repeat() -> bool {
+    let player = PLAYER.lock().await;
+    player.repeat_current_song
+}
+
+#[tauri::command]
+async fn toggle_repeat() {
+    let mut player = PLAYER.lock().await;
+    player.repeat_current_song = !player.repeat_current_song;
+}
+
 async fn get_songs_of_album(album: &String) -> Vec<Song> {
     let player = PLAYER.lock().await;
     let songs = get_audio_from_path("dir");
@@ -145,7 +157,7 @@ async fn get_album_playlist(album: String) -> Playlist {
 
     for l in cache.lines() {
         let mut l = l.split_whitespace();
-        let type_of = l.next().unwrap_or_default();
+        let _type_of = l.next().unwrap_or_default();
         let album_of = &l.clone().collect::<Vec<&str>>().join(&String::from(" "));
         if album_of == &album {
             playlist = Playlist::new_playlist_from(
@@ -239,6 +251,8 @@ pub fn run() {
             get_current_song_info,
             seek_position,
             not_playing,
+            get_repeat,
+            toggle_repeat,
             get_queue_of_covers,
             adjust_volume,
             create_playlist_types,
