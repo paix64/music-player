@@ -83,6 +83,16 @@
         return `${minutes}:${seconds.toString().padStart(2, "0")}`;
     }
 
+    async function nextSong() {
+        if (cover_queue.length == current) {
+            await skipMusic(1 - cover_queue.length);
+            api.scrollTo(0);
+        } else {
+            await skipMusic(1);
+            api.scrollNext();
+        }
+    }
+
     async function updateSongPosition() {
         song_position = await getSongPosition();
         song_position_display = await displayDuration(song_position);
@@ -94,13 +104,13 @@
             (await playerNotPlaying()) &&
             !(await getPlayerRepeat())
         ) {
-            await skipMusic(1);
+            await nextSong();
         } else if (
             song_duration - song_position < 1 &&
             !(await playerNotPlaying()) &&
             (await getPlayerRepeat())
         ) {
-            skipMusic(0);
+            await skipMusic(0);
         }
     }
     init();
@@ -174,8 +184,7 @@
             class="my-4 ml-10 rounded-full shadow-2xl p-3"
             use:Shortcut={{ control: false, code: "KeyM" }}
             on:click={async () => {
-                await skipMusic(1);
-                api.scrollNext();
+                await nextSong();
             }}
         >
             <SkipForwardIcon size="50em" />

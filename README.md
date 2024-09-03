@@ -13,7 +13,7 @@
   - [x] Control with arrow keys
 - [ ] Playlists
   - [ ] Shuffle
-  - [ ] Repeat
+  - [x] Repeat (by default)
   - [ ] Based on directories
   - [x] Based on metadata
 - [ ] Custom CSS
@@ -24,4 +24,4 @@
 - [ ] MPRIS support
 - [ ] Youtube download/search support
    
-- Took 47 hours to build
+- Took 47.75 hours to build
