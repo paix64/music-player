@@ -1,14 +1,13 @@
 [package]
-name = "mus-player"
+name = "bu-player"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-edition = "2021"
+description = "A music player"
+author = "paiyayay"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "mus_player_lib"
+name = "bu_player_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]

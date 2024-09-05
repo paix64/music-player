@@ -226,6 +226,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "bu-player"
+version = "0.1.0"
+dependencies = [
+ "dirs",
+ "lazy_static",
+ "lofty",
+ "rodio",
+ "serde",
+ "serde_json",
+ "symphonia",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-fs",
+ "tauri-plugin-shell",
+ "tokio",
+ "walkdir",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1982,25 +2001,6 @@ dependencies = [
  "serde",
  "thiserror",
  "windows-sys 0.59.0",
-]
-
-[[package]]
-name = "mus-player"
-version = "0.1.0"
-dependencies = [
- "dirs",
- "lazy_static",
- "lofty",
- "rodio",
- "serde",
- "serde_json",
- "symphonia",
- "tauri",
- "tauri-build",
- "tauri-plugin-fs",
- "tauri-plugin-shell",
- "tokio",
- "walkdir",
 ]
 
 [[package]]

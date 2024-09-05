@@ -1,7 +1,7 @@
 {
-    "productName": "mus-player",
+    "productName": "bu-player",
     "version": "0.1.0",
-    "identifier": "mus-player",
+    "identifier": "bu-player",
     "build": {
         "beforeDevCommand": "bun run dev",
         "devUrl": "http://localhost:1420",
@@ -11,7 +11,7 @@
     "app": {
         "windows": [
             {
-                "title": "mus-player",
+                "title": "bu-player",
                 "width": 600,
                 "height": 800
             }
