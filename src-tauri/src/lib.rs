@@ -179,6 +179,7 @@ async fn get_album_playlist(album: String) -> Playlist {
 async fn play_album_playlist(album: String) {
     let playlist = get_album_playlist(album).await;
     let mut player = PLAYER.lock().await;
+    player.empty_queue();
     for song in playlist.song_list {
         player.add_to_queue(song.get_path());
     }

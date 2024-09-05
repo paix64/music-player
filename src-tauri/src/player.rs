@@ -84,6 +84,10 @@ impl Player {
         }
     }
 
+    pub fn empty_queue(&mut self){
+        self.queue.clear()
+    }
+
     pub fn get_position(&self) -> u32 {
         Duration::as_secs_f32(&self.sink.get_pos()) as u32
     }
