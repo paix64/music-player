@@ -30,6 +30,10 @@ export async function skipMusic(toIndex: number) {
     await invoke("skip_music", { toIndex });
 }
 
+export async function shuffleMusic() {
+    await invoke("shuffle_music");
+}
+
 export async function getQueue(): Promise<any> {
     return await invoke("get_queue_of_covers");
 }

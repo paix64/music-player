@@ -11,23 +11,23 @@
   - [x] Control with arrow keys
 - [x] Volume controls
   - [x] Control with arrow keys
-- [ ] Playlists
-  - [ ] Shuffle
+- [x] Playlists
+  - [x] Shuffle
   - [x] Repeat (by default)
-  - [ ] Based on directories
   - [x] Based on metadata
 - [ ] Custom CSS
 
 ### v0.1.1
 - [ ] Playlists
+  - [ ] Based on directories
   - [ ] Custom
 - [ ] MPRIS support
 - [ ] Youtube download/search support
    
-- Took 47.75 hours to build
+- Took 48.5 hours to build
 
 | Format | Seeking Support | Cover Art Support |
-|--------|-----------------|-------------------|
+| ------ | --------------- | ----------------- |
 | MP3    | Yes             | Yes               |
 | OGG    | Yes             | Yes               |
 | FLAC   | No              | Yes               |

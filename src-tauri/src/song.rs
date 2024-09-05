@@ -1,10 +1,9 @@
-use std::path::PathBuf;
-use std::time::Duration;
-
 use lofty::file::{AudioFile, TaggedFileExt};
 use lofty::probe::Probe;
 use lofty::tag::Accessor;
 use serde::Serialize;
+use std::path::PathBuf;
+use std::time::Duration;
 use walkdir::WalkDir;
 
 #[derive(Default, Debug, Clone, Serialize)]

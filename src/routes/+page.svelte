@@ -11,6 +11,7 @@
         SkipForwardIcon,
         SkipBackIcon,
         RepeatIcon,
+        ShuffleIcon,
     } from "svelte-feather-icons";
     import {
         adjustVolume,
@@ -23,6 +24,7 @@
         getSongPosition,
         getPlayerRepeat,
         togglePlayerRepeat,
+        shuffleMusic,
     } from "../service";
     import { appConfigDir } from "@tauri-apps/api/path";
 
@@ -163,6 +165,15 @@
     </div>
 
     <div class="text-slate-600">
+        <button
+            class="my-4 mr-10 rounded-full shadow-2xl p-3"
+            use:Shortcut={{ alt: false, code: "KeyN" }}
+            on:click={async () => {
+                await shuffleMusic();
+            }}
+        >
+            <ShuffleIcon size="50rem" />
+        </button>
         <button
             class="my-4 mr-10 rounded-full shadow-2xl p-3"
             use:Shortcut={{ alt: false, code: "KeyN" }}

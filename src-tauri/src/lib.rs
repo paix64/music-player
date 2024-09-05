@@ -5,9 +5,6 @@ mod song;
 
 use dirs::config_dir;
 use lazy_static::lazy_static;
-use player::Player;
-use playlist::Playlist;
-use song::Song;
 use std::{
     fs::{self, read_to_string, OpenOptions},
     io::Write,
@@ -16,6 +13,10 @@ use std::{
 };
 use tokio::sync::Mutex;
 use walkdir::WalkDir;
+
+use crate::player::Player;
+use crate::playlist::Playlist;
+use crate::song::Song;
 
 lazy_static! {
     static ref PLAYER: Mutex<Player> = Mutex::new(Player::new());
@@ -56,6 +57,12 @@ async fn adjust_volume(by: f32) {
 async fn skip_music(to_index: i32) {
     let mut player = PLAYER.lock().await;
     player.skip(to_index);
+}
+
+#[tauri::command]
+async fn shuffle_music() {
+    let mut player = PLAYER.lock().await;
+    player.shuffle();
 }
 
 #[tauri::command]
@@ -258,7 +265,8 @@ pub fn run() {
             adjust_volume,
             create_playlist_types,
             get_album_playlists,
-            play_album_playlist
+            play_album_playlist,
+            shuffle_music
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

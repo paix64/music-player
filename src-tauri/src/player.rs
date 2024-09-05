@@ -1,3 +1,5 @@
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 use std::{fs::File, io::BufReader, path::PathBuf, time::Duration, vec};
 
@@ -9,6 +11,7 @@ pub struct Player {
     pub current_song: Option<Song>,
     pub queue: Vec<Song>,
     pub repeat_current_song: bool,
+    pub is_shuffled: bool,
     queue_index: i32,
     volume: f32,
 }
@@ -24,6 +27,7 @@ impl Player {
             current_song: None,
             queue: vec![],
             repeat_current_song: false,
+            is_shuffled: false,
             queue_index: 0,
             volume: 0.5,
         }
@@ -70,6 +74,14 @@ impl Player {
         self.play(next_song.get_path())
     }
 
+    pub fn shuffle(&mut self) {
+        if !self.is_shuffled {
+            let mut rng = thread_rng();
+            self.queue.shuffle(&mut rng);
+        }
+        self.is_shuffled = true;
+    }
+
     pub fn get_song_duration(&self) -> u32 {
         match &self.current_song {
             Some(s) => Duration::as_secs(&s.duration) as u32,
@@ -84,7 +96,7 @@ impl Player {
         }
     }
 
-    pub fn empty_queue(&mut self){
+    pub fn empty_queue(&mut self) {
         self.queue.clear()
     }
 
