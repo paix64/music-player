@@ -1,4 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
+import { appConfigDir } from "@tauri-apps/api/path";
+
 
 cachePlaylistTypes();
 
@@ -56,4 +58,22 @@ export async function getAlbumPlaylists(): Promise<any> {
 
 export async function playAlbumPlaylist(album: string) {
     await invoke("play_album_playlist", { album });
+}
+
+export async function importCSS() {
+    const configDir = await appConfigDir();
+    let path = `"${configDir}/theme.css"`;
+    let fallback = "/src/theme.css";
+
+    document.head.insertAdjacentHTML(
+        "beforeend",
+        `'<link rel="stylesheet" href=${path} />'`,
+    );
+
+    if (!document.querySelector('link[href="${configDir}/theme.css"]')) {
+        document.head.insertAdjacentHTML(
+            "beforeend",
+            `'<link rel="stylesheet" href=${fallback} />'`,
+        );
+    }
 }

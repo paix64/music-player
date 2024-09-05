@@ -1,6 +1,6 @@
 <script lang="ts">
     import Navigation from "$lib/components/Navigation.svelte";
-    import { getAlbumPlaylists, playAlbumPlaylist } from "../../service";
+    import { getAlbumPlaylists, playAlbumPlaylist, importCSS} from "../../service";
     import { convertFileSrc } from "@tauri-apps/api/core";
 
     let albums: any[] = [];
@@ -10,6 +10,9 @@
 
     getAlbums();
     console.log(albums);
+
+    
+    importCSS();
 </script>
 
 <div class="main">
@@ -38,5 +41,3 @@
         {/each}
     </div>
 </div>
-
-<style src="../../theme.css"></style>

@@ -15,7 +15,7 @@
   - [x] Shuffle
   - [x] Repeat (by default)
   - [x] Based on metadata
-- [ ] Custom CSS
+- [x] Custom CSS
 
 ### v0.1.1
 - [ ] Playlists
@@ -24,7 +24,7 @@
 - [ ] MPRIS support
 - [ ] Youtube download/search support
    
-- Took 48.5 hours to build
+- Took 49 hours to build
 
 | Format | Seeking Support | Cover Art Support |
 | ------ | --------------- | ----------------- |

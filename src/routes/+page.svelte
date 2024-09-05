@@ -25,6 +25,7 @@
         getPlayerRepeat,
         togglePlayerRepeat,
         shuffleMusic,
+        importCSS,
     } from "../service";
     import { appConfigDir } from "@tauri-apps/api/path";
 
@@ -35,6 +36,7 @@
 
     async function init() {
         configDir = await appConfigDir();
+        importCSS();
     }
 
     $: if (api) {
@@ -237,5 +239,3 @@
         ></button>
     </div>
 </div>
-
-<style src="../theme.css"></style>

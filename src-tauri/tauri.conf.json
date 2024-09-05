@@ -1,7 +1,7 @@
 {
-    "productName": "bu-player",
+    "productName": "bupl",
     "version": "0.1.0",
-    "identifier": "bu-player",
+    "identifier": "bupl",
     "build": {
         "beforeDevCommand": "bun run dev",
         "devUrl": "http://localhost:1420",
@@ -11,7 +11,7 @@
     "app": {
         "windows": [
             {
-                "title": "bu-player",
+                "title": "bupl",
                 "width": 600,
                 "height": 800
             }

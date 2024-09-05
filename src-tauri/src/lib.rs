@@ -20,7 +20,7 @@ use crate::song::Song;
 
 lazy_static! {
     static ref PLAYER: Mutex<Player> = Mutex::new(Player::new());
-    static ref APP_NAME: Arc<String> = Arc::new(String::from("burock"));
+    static ref APP_NAME: Arc<String> = Arc::new(String::from("bupl"));
 }
 
 #[tauri::command]
