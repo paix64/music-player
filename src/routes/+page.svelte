@@ -27,17 +27,10 @@
         shuffleMusic,
         importCSS,
     } from "../service";
-    import { appConfigDir } from "@tauri-apps/api/path";
 
     let api: CarouselAPI;
-    let configDir: string;
     let current = 0;
     let count = 0;
-
-    async function init() {
-        configDir = await appConfigDir();
-        importCSS();
-    }
 
     $: if (api) {
         current = api.selectedScrollSnap() + 1;
@@ -117,7 +110,7 @@
             await skipMusic(0);
         }
     }
-    init();
+    importCSS();
     setInterval(updateSongPosition, 500);
 </script>
 
