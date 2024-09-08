@@ -1,5 +1,6 @@
 <script lang="ts">
     import Navigation from "$lib/components/Navigation.svelte";
+    import { onMount } from "svelte";
     import {
         getAlbumPlaylists,
         playAlbumPlaylist,
@@ -8,13 +9,21 @@
     import { convertFileSrc } from "@tauri-apps/api/core";
 
     let albums: any[] = [];
-    async function getAlbums() {
-        albums = await getAlbumPlaylists();
-    }
+    const CACHE_KEY = "albums_cache";
+    onMount(async () => {
+        const cachedAlbums = localStorage.getItem(CACHE_KEY);
 
-    getAlbums();
-    console.log(albums);
-
+        if (cachedAlbums) {
+            albums = JSON.parse(cachedAlbums);
+        } else {
+            try {
+                albums = await getAlbumPlaylists();
+                localStorage.setItem(CACHE_KEY, JSON.stringify(albums));
+            } catch (e) {
+                console.error("Failed to fetch albums", e);
+            }
+        }
+    });
     importCSS();
 </script>
 
@@ -23,7 +32,7 @@
     <p class="my-4">Albums</p>
 
     <div class="flex flex-row flex-wrap ml-12">
-        {#each Array(albums.length) as _, i (i)}
+        {#each albums as _album, i (i)}
             <button
                 on:click={() => {
                     playAlbumPlaylist(albums[i].name);
@@ -37,6 +46,7 @@
                         src={convertFileSrc(albums[i].song_list[0].cover_path)}
                         alt="Album Cover"
                         class="h-full object-cover"
+                        loading="lazy"
                     />
                 </div>
                 <p class="mb-4 text-2xl">{albums[i].name}</p>
