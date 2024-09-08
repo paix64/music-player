@@ -26,6 +26,7 @@
     });
     importCSS();
     localStorage.removeItem("song_cache");
+    localStorage.removeItem("cover_queue_cache");
 </script>
 
 <div class="main">

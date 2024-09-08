@@ -165,12 +165,12 @@
         }}
     >
         <Carousel.Content>
-            {#each cover_queue as _cover, i (i)}
-                <Carousel.Item>
-                    <div
-                        class="p-0 border-2 rounded-3xl overflow-hidden border-slate-900"
-                    >
-                        <div class="">
+            {#if cover_queue.length > 0}
+                {#each cover_queue as _cover, i (i)}
+                    <Carousel.Item>
+                        <div
+                            class="p-0 border-2 rounded-3xl overflow-hidden border-slate-900"
+                        >
                             <img
                                 src={convertFileSrc(cover_queue[i])}
                                 alt="Album Cover"
@@ -178,9 +178,16 @@
                                 loading="lazy"
                             />
                         </div>
-                    </div>
-                </Carousel.Item>
-            {/each}
+                    </Carousel.Item>
+                {/each}
+            {:else}
+                <img
+                    src={"src/assets/placeholder.jpg"}
+                    alt="Album Cover"
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                />
+            {/if}
         </Carousel.Content>
     </Carousel.Root>
 
