@@ -1,4 +1,5 @@
 <script>
+    import { goto } from '$app/navigation';
     import {
         PlayCircleIcon,
         FolderIcon,
@@ -12,14 +13,14 @@
     <div class="my-auto mx-2">
         <button
             class="my-2 w-12 h-12 hover:text-red-500 transition-all"
-            on:click={() => (window.location.href = "/")}
+            on:click={() => goto("/")}
         >
             <PlayCircleIcon size="50rem"></PlayCircleIcon>
         </button>
 
         <button
             class="my-2 w-12 h-12 hover:text-red-500 transition-all"
-            on:click={() => (window.location.href = "/library")}
+            on:click={() => goto("/library")}
         >
             <FolderIcon size="50rem"></FolderIcon>
         </button>
