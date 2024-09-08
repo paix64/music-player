@@ -40,39 +40,41 @@
             current = api.selectedScrollSnap() + 1;
         });
     }
-
-    let song_title = "";
-    let song_artist = "";
-    let song_album = "";
-    let song_album_cover = "";
-    let song_genre = "";
-    let song_year = "";
-    let song_track = "";
+    let song = {
+        title: "",
+        artist: "",
+        album: "",
+        album_cover: "",
+        genre: "",
+        year: "",
+        track: "",
+        duration: 100.0,
+        duration_display: "",
+    };
 
     let cover_queue: string[] = [];
-
-    let song_duration = 100.0;
     let song_position = 0.0;
-    let song_duration_display = "0:00";
     let song_position_display = "0:00";
 
     async function getCurrentSong() {
-        song_title = await getCurrentSongInfo("title");
-        song_artist = await getCurrentSongInfo("artist");
-        song_album = await getCurrentSongInfo("album");
-        song_album_cover = await getCurrentSongInfo("album_cover");
-        song_genre = await getCurrentSongInfo("genre");
-        song_year = await getCurrentSongInfo("year");
-        song_track = await getCurrentSongInfo("track");
-        song_duration = await getCurrentSongInfo("duration").then(
-            (duration) => {
-                if ((duration as number) == 0) {
+        const song = {
+            title: await getCurrentSongInfo("title"),
+            artist: await getCurrentSongInfo("artist"),
+            album: await getCurrentSongInfo("album"),
+            album_cover: await getCurrentSongInfo("album_cover"),
+            genre: await getCurrentSongInfo("genre"),
+            year: await getCurrentSongInfo("year"),
+            track: await getCurrentSongInfo("track"),
+            duration: await getCurrentSongInfo("duration").then((duration) => {
+                if (duration === 0) {
                     return 100.0;
                 }
-                return duration as number;
-            },
-        );
-        song_duration_display = await displayDuration(song_duration);
+                return duration;
+            }),
+            duration_display: "",
+        };
+        song.duration_display = await displayDuration(song.duration);
+        return song;
     }
 
     async function displayDuration(of: number) {
@@ -89,11 +91,19 @@
             await skipMusic(1);
             api.scrollNext();
         }
+        await updateCurrentSong();
+    }
+
+    async function updateCurrentSong() {
+        song = await getCurrentSong();
+        localStorage.setItem(SONG_CACHE_KEY, JSON.stringify(song));
     }
 
     const CACHE_KEY = "cover_queue_cache";
+    const SONG_CACHE_KEY = "song_cache";
     onMount(async () => {
         const cachedCovers = localStorage.getItem(CACHE_KEY);
+        const cachedSong = localStorage.getItem(SONG_CACHE_KEY);
 
         if (cachedCovers) {
             cover_queue = JSON.parse(cachedCovers);
@@ -101,6 +111,16 @@
             try {
                 cover_queue = await getQueue();
                 localStorage.setItem(CACHE_KEY, JSON.stringify(cover_queue));
+            } catch (e) {
+                console.error("Failed to fetch cover queue", e);
+            }
+        }
+        if (cachedSong) {
+            song = JSON.parse(cachedSong);
+        } else {
+            try {
+                song = await getCurrentSong();
+                localStorage.setItem(SONG_CACHE_KEY, JSON.stringify(song));
             } catch (e) {
                 console.error("Failed to fetch cover queue", e);
             }
@@ -113,13 +133,13 @@
         await getCurrentSong();
 
         if (
-            song_duration - song_position < 1 &&
+            song.duration - song_position < 1 &&
             (await playerNotPlaying()) &&
             !(await getPlayerRepeat())
         ) {
             await nextSong();
         } else if (
-            song_duration - song_position < 1 &&
+            song.duration - song_position < 1 &&
             !(await playerNotPlaying()) &&
             (await getPlayerRepeat())
         ) {
@@ -132,7 +152,7 @@
 
 <div class="main">
     <Navigation />
-    <p class="mt-[0.75%] text-xl opacity-70">{song_album}</p>
+    <p class="mt-[0.75%] text-xl opacity-70">{song.album}</p>
     <Carousel.Root
         bind:api
         class="my-[1.25%] mx-auto w-[80%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[40%]"
@@ -161,13 +181,13 @@
     </Carousel.Root>
 
     <div class="text-left w-[80%] mx-auto">
-        <p class="text-3xl">{song_title}</p>
-        <p class="text-xl opacity-70">{song_artist}</p>
+        <p class="text-3xl">{song.title}</p>
+        <p class="text-xl opacity-70">{song.artist}</p>
         <hr class="my-2 border-t border-white" />
-        <Progress value={song_position} max={song_duration} class="h-4" />
+        <Progress value={song_position} max={song.duration} class="h-4" />
         <!-- <Slider value={[song_position]} max={song_duration} class="mx-auto" /> -->
         <p class="opacity-50 text-sm float-right mx-1">
-            {song_duration_display}
+            {song.duration_display}
         </p>
         <p class="opacity-50 text-sm mx-1">{song_position_display}</p>
     </div>
@@ -192,6 +212,7 @@
             on:click={async () => {
                 await skipMusic(-1);
                 api.scrollPrev();
+                await updateCurrentSong();
             }}
         >
             <SkipBackIcon size="50rem" />
@@ -208,6 +229,7 @@
             use:Shortcut={{ control: false, code: "KeyM" }}
             on:click={async () => {
                 await nextSong();
+                await updateCurrentSong();
             }}
         >
             <SkipForwardIcon size="50em" />

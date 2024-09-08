@@ -37,6 +37,7 @@
                 on:click={() => {
                     playAlbumPlaylist(albums[i].name);
                     localStorage.removeItem("cover_queue_cache");
+                    localStorage.removeItem("song_cache");
                 }}
             >
                 <div
