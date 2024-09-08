@@ -29,11 +29,11 @@
     localStorage.removeItem("cover_queue_cache");
 </script>
 
-<div class="main">
+<div class="main library">
     <Navigation />
-    <p class="my-4">Albums</p>
+    <p class="title-albums">Albums</p>
 
-    <div class="flex flex-row flex-wrap ml-12">
+    <div class="playlist-list">
         {#each albums as album}
             <button
                 on:click={() => {
@@ -42,17 +42,15 @@
                     playAlbumPlaylist(album.name);
                 }}
             >
-                <div
-                    class="p-0 m-4 border-2 rounded-3xl overflow-hidden border-slate-900 size-80"
-                >
+                <div class="cover-border">
                     <img
                         src={convertFileSrc(album.song_list[0].cover_path)}
                         alt="Album Cover"
-                        class="h-full object-cover"
+                        class="cover"
                         loading="lazy"
                     />
                 </div>
-                <p class="mb-4 text-2xl">{album.name}</p>
+                <p class="album-name">{album.name}</p>
             </button>
         {/each}
     </div>

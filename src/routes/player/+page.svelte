@@ -47,7 +47,7 @@
         genre: "",
         year: "",
         track: "",
-        duration: 100.0,
+        duration: 1.0,
         duration_display: "",
     };
 
@@ -65,8 +65,8 @@
             year: await getCurrentSongInfo("year"),
             track: await getCurrentSongInfo("track"),
             duration: await getCurrentSongInfo("duration").then((duration) => {
-                if (duration === 0) {
-                    return 100.0;
+                if ((duration as number) == 0) {
+                    return 1.0;
                 }
                 return duration;
             }),
@@ -154,12 +154,12 @@
     setInterval(updateSongPosition, 500);
 </script>
 
-<div class="main">
+<div class="main player">
     <Navigation />
-    <p class="mt-[0.75%] text-xl opacity-70">{song.album}</p>
+    <p class="title-album">{song.album}</p>
     <Carousel.Root
         bind:api
-        class="my-[1.25%] mx-auto w-[80%] sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[40%]"
+        class="cover-list"
         opts={{
             watchDrag: false,
         }}
@@ -168,13 +168,11 @@
             {#if cover_queue.length > 0}
                 {#each cover_queue as cover}
                     <Carousel.Item>
-                        <div
-                            class="p-0 border-2 rounded-3xl overflow-hidden border-slate-900"
-                        >
+                        <div class="cover-border">
                             <img
                                 src={convertFileSrc(cover)}
                                 alt="Album Cover"
-                                class="w-full h-full object-cover"
+                                class="cover"
                                 loading="lazy"
                             />
                         </div>
@@ -184,32 +182,34 @@
                 <img
                     src={"src/assets/placeholder.jpg"}
                     alt="Album Cover"
-                    class="w-full h-full object-cover"
+                    class="cover"
                     loading="lazy"
                 />
             {/if}
         </Carousel.Content>
     </Carousel.Root>
 
-    <div class="text-left w-[80%] mx-auto">
-        <p class="text-3xl">{song.title}</p>
-        <p class="text-xl opacity-70">{song.artist}</p>
-        <hr class="my-2 border-t border-white" />
-        <Progress value={song_position} max={song.duration} class="h-4" />
+    <div class="information">
+        <p class="title">{song.title}</p>
+        <p class="artist">{song.artist}</p>
+        <hr class="seperator" />
+        <Progress
+            value={song_position}
+            max={song.duration}
+            class="progress-bar"
+        />
         <!-- <Slider value={[song_position]} max={song_duration} class="mx-auto" /> -->
-        <p class="opacity-50 text-sm float-right mx-1">
+        <p class="duration float-right">
             {song.duration_display}
         </p>
-        <p class="opacity-50 text-sm mx-1">{song_position_display}</p>
+        <p class="duration">{song_position_display}</p>
     </div>
 
-    <div class="text-muted-foreground py-2 text-center text-sm">
-        Slide {current} of {cover_queue.length}
-    </div>
+    Slide {current} of {cover_queue.length}
 
-    <div class="text-slate-600">
+    <div class="controls">
         <button
-            class="my-4 mr-10 rounded-full shadow-2xl p-3"
+            class="left-side"
             use:Shortcut={{ alt: false, code: "KeyN" }}
             on:click={async () => {
                 await shuffleMusic();
@@ -218,7 +218,7 @@
             <ShuffleIcon size="50rem" />
         </button>
         <button
-            class="my-4 mr-10 rounded-full shadow-2xl p-3"
+            class="left-side"
             use:Shortcut={{ alt: false, code: "KeyN" }}
             on:click={async () => {
                 await skipMusic(-1);
@@ -229,14 +229,14 @@
             <SkipBackIcon size="50rem" />
         </button>
         <button
-            class="my-4 rounded-full shadow-2xl p-3"
+            class="middle"
             use:Shortcut={{ shift: false, code: "Space" }}
             on:click={async () => await playPause()}
         >
             <PlayIcon size="50rem" class="ml-1.5" />
         </button>
         <button
-            class="my-4 ml-10 rounded-full shadow-2xl p-3"
+            class="right-side"
             use:Shortcut={{ control: false, code: "KeyM" }}
             on:click={async () => {
                 await nextSong();
@@ -245,7 +245,7 @@
             <SkipForwardIcon size="50em" />
         </button>
         <button
-            class="my-4 ml-10 rounded-full shadow-2xl p-3"
+            class="right-side"
             use:Shortcut={{ control: false, code: "KeyR" }}
             on:click={async () => {
                 await togglePlayerRepeat();
