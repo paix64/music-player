@@ -5,6 +5,7 @@
     import { convertFileSrc } from "@tauri-apps/api/core";
     import { Shortcut } from "../Shortcut.js";
     import Navigation from "$lib/components/Navigation.svelte";
+    import { onMount } from "svelte";
 
     import {
         PlayIcon,
@@ -90,10 +91,25 @@
         }
     }
 
+    const CACHE_KEY = "cover_queue_cache";
+    onMount(async () => {
+        const cachedCovers = localStorage.getItem(CACHE_KEY);
+
+        if (cachedCovers) {
+            cover_queue = JSON.parse(cachedCovers);
+        } else {
+            try {
+                cover_queue = await getQueue();
+                localStorage.setItem(CACHE_KEY, JSON.stringify(cover_queue));
+            } catch (e) {
+                console.error("Failed to fetch cover queue", e);
+            }
+        }
+    });
+
     async function updateSongPosition() {
         song_position = await getSongPosition();
         song_position_display = await displayDuration(song_position);
-        cover_queue = await getQueue();
         await getCurrentSong();
 
         if (
@@ -125,7 +141,7 @@
         }}
     >
         <Carousel.Content>
-            {#each Array(cover_queue.length) as _, i (i)}
+            {#each cover_queue as _cover, i (i)}
                 <Carousel.Item>
                     <div
                         class="p-0 border-2 rounded-3xl overflow-hidden border-slate-900"
@@ -135,6 +151,7 @@
                                 src={convertFileSrc(cover_queue[i])}
                                 alt="Album Cover"
                                 class="w-full h-full object-cover"
+                                loading="lazy"
                             />
                         </div>
                     </div>

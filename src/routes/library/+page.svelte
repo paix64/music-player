@@ -36,7 +36,7 @@
             <button
                 on:click={() => {
                     playAlbumPlaylist(albums[i].name);
-                    console.log(albums[i].name);
+                    localStorage.removeItem("cover_queue_cache");
                 }}
             >
                 <div
