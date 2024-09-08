@@ -13,14 +13,14 @@
     <div class="my-auto mx-2">
         <button
             class="my-2 w-12 h-12 hover:text-red-500 transition-all"
-            on:click={() => goto("/")}
+            on:click={() => goto("/player")}
         >
             <PlayCircleIcon size="50rem"></PlayCircleIcon>
         </button>
 
         <button
             class="my-2 w-12 h-12 hover:text-red-500 transition-all"
-            on:click={() => goto("/library")}
+            on:click={() => goto("/")}
         >
             <FolderIcon size="50rem"></FolderIcon>
         </button>
