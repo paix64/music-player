@@ -166,13 +166,13 @@
     >
         <Carousel.Content>
             {#if cover_queue.length > 0}
-                {#each cover_queue as _cover, i (i)}
+                {#each cover_queue as cover}
                     <Carousel.Item>
                         <div
                             class="p-0 border-2 rounded-3xl overflow-hidden border-slate-900"
                         >
                             <img
-                                src={convertFileSrc(cover_queue[i])}
+                                src={convertFileSrc(cover)}
                                 alt="Album Cover"
                                 class="w-full h-full object-cover"
                                 loading="lazy"

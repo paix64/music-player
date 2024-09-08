@@ -34,25 +34,25 @@
     <p class="my-4">Albums</p>
 
     <div class="flex flex-row flex-wrap ml-12">
-        {#each albums as _album, i (i)}
+        {#each albums as album}
             <button
                 on:click={() => {
                     localStorage.removeItem("song_cache");
                     localStorage.removeItem("cover_queue_cache");
-                    playAlbumPlaylist(albums[i].name);
+                    playAlbumPlaylist(album.name);
                 }}
             >
                 <div
                     class="p-0 m-4 border-2 rounded-3xl overflow-hidden border-slate-900 size-80"
                 >
                     <img
-                        src={convertFileSrc(albums[i].song_list[0].cover_path)}
+                        src={convertFileSrc(album.song_list[0].cover_path)}
                         alt="Album Cover"
                         class="h-full object-cover"
                         loading="lazy"
                     />
                 </div>
-                <p class="mb-4 text-2xl">{albums[i].name}</p>
+                <p class="mb-4 text-2xl">{album.name}</p>
             </button>
         {/each}
     </div>
