@@ -35,9 +35,9 @@
         {#each albums as _album, i (i)}
             <button
                 on:click={() => {
-                    playAlbumPlaylist(albums[i].name);
-                    localStorage.removeItem("cover_queue_cache");
                     localStorage.removeItem("song_cache");
+                    localStorage.removeItem("cover_queue_cache");
+                    playAlbumPlaylist(albums[i].name);
                 }}
             >
                 <div

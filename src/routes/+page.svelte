@@ -31,7 +31,6 @@
 
     let api: CarouselAPI;
     let current = 0;
-    let count = 0;
 
     $: if (api) {
         current = api.selectedScrollSnap() + 1;
@@ -99,10 +98,10 @@
         localStorage.setItem(SONG_CACHE_KEY, JSON.stringify(song));
     }
 
-    const CACHE_KEY = "cover_queue_cache";
+    const COVER_CACHE_KEY = "cover_queue_cache";
     const SONG_CACHE_KEY = "song_cache";
     onMount(async () => {
-        const cachedCovers = localStorage.getItem(CACHE_KEY);
+        const cachedCovers = localStorage.getItem(COVER_CACHE_KEY);
         const cachedSong = localStorage.getItem(SONG_CACHE_KEY);
 
         if (cachedCovers) {
@@ -110,7 +109,7 @@
         } else {
             try {
                 cover_queue = await getQueue();
-                localStorage.setItem(CACHE_KEY, JSON.stringify(cover_queue));
+                localStorage.setItem(COVER_CACHE_KEY, JSON.stringify(cover_queue));
             } catch (e) {
                 console.error("Failed to fetch cover queue", e);
             }
@@ -119,10 +118,9 @@
             song = JSON.parse(cachedSong);
         } else {
             try {
-                song = await getCurrentSong();
-                localStorage.setItem(SONG_CACHE_KEY, JSON.stringify(song));
+                updateCurrentSong();
             } catch (e) {
-                console.error("Failed to fetch cover queue", e);
+                console.error("Failed to fetch song info", e);
             }
         }
     });
@@ -130,8 +128,9 @@
     async function updateSongPosition() {
         song_position = await getSongPosition();
         song_position_display = await displayDuration(song_position);
-        await getCurrentSong();
-
+        if (!song.duration) {
+            return;
+        }
         if (
             song.duration - song_position < 1 &&
             (await playerNotPlaying()) &&
@@ -193,7 +192,7 @@
     </div>
 
     <div class="text-muted-foreground py-2 text-center text-sm">
-        Slide {current} of {count}
+        Slide {current} of {cover_queue.length}
     </div>
 
     <div class="text-slate-600">
@@ -229,7 +228,6 @@
             use:Shortcut={{ control: false, code: "KeyM" }}
             on:click={async () => {
                 await nextSong();
-                await updateCurrentSong();
             }}
         >
             <SkipForwardIcon size="50em" />

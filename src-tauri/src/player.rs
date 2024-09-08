@@ -97,7 +97,9 @@ impl Player {
     }
 
     pub fn empty_queue(&mut self) {
-        self.queue.clear()
+        self.queue.clear();
+        self.sink.clear();
+        self.queue_index = 0;
     }
 
     pub fn get_position(&self) -> u32 {
