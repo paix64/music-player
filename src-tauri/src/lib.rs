@@ -190,6 +190,8 @@ async fn play_album_playlist(album: String) {
     for song in playlist.song_list {
         player.add_to_queue(song.get_path());
     }
+    let first_song = player.queue.get(0).cloned().unwrap_or_default().get_path();
+    player.play(first_song)
 }
 
 #[tauri::command]

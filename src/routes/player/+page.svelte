@@ -123,7 +123,7 @@
             song = JSON.parse(cachedSong);
         } else {
             try {
-                updateCurrentSong();
+                await updateCurrentSong();
             } catch (e) {
                 console.error("Failed to fetch song info", e);
             }
