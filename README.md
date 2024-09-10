@@ -25,7 +25,7 @@
 - [ ] MPRIS support
 - [ ] Youtube download/search support
    
-- Took 56.5 hours to build
+- Took 57 hours to build
 
 | Format | Seeking Support | Cover Art Support |
 | ------ | --------------- | ----------------- |

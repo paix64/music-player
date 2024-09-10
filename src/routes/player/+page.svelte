@@ -103,6 +103,7 @@
     const COVER_CACHE_KEY = "cover_queue_cache";
     const SONG_CACHE_KEY = "song_cache";
     onMount(async () => {
+        await updateSongPosition();
         const cachedCovers = localStorage.getItem(COVER_CACHE_KEY);
         if (cachedCovers) {
             cover_queue = JSON.parse(cachedCovers);
@@ -204,8 +205,6 @@
         </p>
         <p class="duration">{song_position_display}</p>
     </div>
-
-    Slide {current} of {cover_queue.length}
 
     <div class="controls">
         <button
