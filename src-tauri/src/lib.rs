@@ -82,6 +82,12 @@ async fn not_playing() -> bool {
 }
 
 #[tauri::command]
+async fn is_paused() -> bool {
+    let player = PLAYER.lock().await;
+    player.sink.is_paused()
+}
+
+#[tauri::command]
 async fn get_current_song_info(key: String) -> String {
     let player = PLAYER.lock().await;
     let current_song = player.current_song.clone().unwrap_or_default();
@@ -268,7 +274,8 @@ pub fn run() {
             create_playlist_types,
             get_album_playlists,
             play_album_playlist,
-            shuffle_music
+            shuffle_music,
+            is_paused
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

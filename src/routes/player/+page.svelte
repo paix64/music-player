@@ -9,6 +9,7 @@
 
     import {
         PlayIcon,
+        PauseIcon,
         SkipForwardIcon,
         SkipBackIcon,
         RepeatIcon,
@@ -27,10 +28,12 @@
         togglePlayerRepeat,
         shuffleMusic,
         importCSS,
+        playerIsPaused,
     } from "../../service";
 
     let api: CarouselAPI;
     let current = 0;
+    let paused: boolean;
 
     $: if (api) {
         current = api.selectedScrollSnap() + 1;
@@ -104,6 +107,8 @@
     const SONG_CACHE_KEY = "song_cache";
     onMount(async () => {
         await updateSongPosition();
+        paused = !(await playerIsPaused());
+        
         const cachedCovers = localStorage.getItem(COVER_CACHE_KEY);
         if (cachedCovers) {
             cover_queue = JSON.parse(cachedCovers);
@@ -230,9 +235,16 @@
         <button
             class="middle"
             use:Shortcut={{ shift: false, code: "Space" }}
-            on:click={async () => await playPause()}
+            on:click={async () => {
+                await playPause();
+                paused = !(await playerIsPaused());
+            }}
         >
-            <PlayIcon size="50rem" class="ml-1.5" />
+            {#if paused}
+                <PauseIcon size="50rem" />
+            {:else}
+                <PlayIcon size="50rem" />
+            {/if}
         </button>
         <button
             class="right-side"

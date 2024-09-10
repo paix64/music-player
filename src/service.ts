@@ -56,6 +56,10 @@ export async function getAlbumPlaylists(): Promise<any> {
     return await invoke("get_album_playlists");
 }
 
+export async function playerIsPaused(): Promise<boolean> {
+    return await invoke("is_paused");
+}
+
 export async function playAlbumPlaylist(album: string) {
     await invoke("play_album_playlist", { album });
 }

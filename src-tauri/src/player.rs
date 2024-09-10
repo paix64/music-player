@@ -7,7 +7,7 @@ use crate::song::Song;
 
 pub struct Player {
     _output_stream: (OutputStream, OutputStreamHandle),
-    sink: Sink,
+    pub sink: Sink,
     pub current_song: Option<Song>,
     pub queue: Vec<Song>,
     pub repeat_current_song: bool,
