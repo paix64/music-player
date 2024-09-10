@@ -20,7 +20,7 @@ export const Shortcut = (node, params) => {
             isWaiting = true;
             setTimeout(() => {
                 isWaiting = false;
-            }, params.delay || 500);
+            }, params.delay || 200);
             
         };
         window.addEventListener('keydown', handler);
