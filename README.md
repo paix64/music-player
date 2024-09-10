@@ -16,6 +16,7 @@
   - [x] Repeat (by default)
   - [x] Based on metadata
 - [x] Custom CSS
+- [ ] Mini player in library
 
 ### v0.1.1
 - [ ] Playlists
@@ -24,7 +25,7 @@
 - [ ] MPRIS support
 - [ ] Youtube download/search support
    
-- Took 54.5 hours to build
+- Took 56.5 hours to build
 
 | Format | Seeking Support | Cover Art Support |
 | ------ | --------------- | ----------------- |

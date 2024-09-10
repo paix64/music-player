@@ -27,7 +27,7 @@
         togglePlayerRepeat,
         shuffleMusic,
         importCSS,
-    } from "../../service.js";
+    } from "../../service";
 
     let api: CarouselAPI;
     let current = 0;

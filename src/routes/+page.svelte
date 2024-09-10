@@ -1,5 +1,6 @@
 <script lang="ts">
     import Navigation from "$lib/components/Navigation.svelte";
+    import MiniPlayer from "$lib/components/MiniPlayer.svelte";
     import { onMount } from "svelte";
     import {
         getAlbumPlaylists,
@@ -27,19 +28,23 @@
     importCSS();
     localStorage.removeItem("song_cache");
     localStorage.removeItem("cover_queue_cache");
+
+    let miniPlayer: any;
 </script>
 
 <div class="main library">
     <Navigation />
+    <MiniPlayer bind:this={miniPlayer} />
     <p class="title-albums">Albums</p>
 
     <div class="playlist-list">
         {#each albums as album}
             <button
-                on:click={() => {
+                on:click={async () => {
                     localStorage.removeItem("song_cache");
                     localStorage.removeItem("cover_queue_cache");
-                    playAlbumPlaylist(album.name);
+                    await playAlbumPlaylist(album.name);
+                    await miniPlayer.getCurrentSong();
                 }}
             >
                 <div class="cover-border">
