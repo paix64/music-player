@@ -16,19 +16,19 @@
         ShuffleIcon,
     } from "svelte-feather-icons";
     import {
-        adjustVolume,
-        seekPosition,
-        getCurrentSongInfo,
-        skipMusic,
-        playPause,
-        getQueue,
-        playerNotPlaying,
-        getSongPosition,
-        getPlayerRepeat,
-        togglePlayerRepeat,
-        shuffleMusic,
+        playerAdjustVolume,
+        playerSeekPosition,
+        playerCurrentSongInfo,
+        playerSkip,
+        playerPlayOrPause,
+        playerCoverPathQueue,
+        playerSongFinished,
+        playerSongPosition,
+        playerRepeat,
+        playerToggleRepeat,
+        playerShuffleQueue,
+        playerSongPaused,
         importCSS,
-        playerIsPaused,
     } from "../../service";
 
     let api: CarouselAPI;
@@ -46,7 +46,7 @@
         title: "",
         artist: "",
         album: "",
-        album_cover: "",
+        cover_path: "",
         genre: "",
         year: "",
         track: "",
@@ -60,14 +60,14 @@
 
     async function getCurrentSong() {
         const song = {
-            title: await getCurrentSongInfo("title"),
-            artist: await getCurrentSongInfo("artist"),
-            album: await getCurrentSongInfo("album"),
-            album_cover: await getCurrentSongInfo("album_cover"),
-            genre: await getCurrentSongInfo("genre"),
-            year: await getCurrentSongInfo("year"),
-            track: await getCurrentSongInfo("track"),
-            duration: await getCurrentSongInfo("duration").then((duration) => {
+            title: await playerCurrentSongInfo("title"),
+            artist: await playerCurrentSongInfo("artist"),
+            album: await playerCurrentSongInfo("album"),
+            cover_path: await playerCurrentSongInfo("cover_path"),
+            genre: await playerCurrentSongInfo("genre"),
+            year: await playerCurrentSongInfo("year"),
+            track: await playerCurrentSongInfo("track"),
+            duration: await playerCurrentSongInfo("duration").then((duration) => {
                 if ((duration as number) == 0) {
                     return 1.0;
                 }
@@ -87,10 +87,10 @@
 
     async function nextSong() {
         if (cover_queue.length == current) {
-            await skipMusic(1 - cover_queue.length);
+            await playerSkip(1 - cover_queue.length);
             api.scrollTo(0);
         } else {
-            await skipMusic(1);
+            await playerSkip(1);
             api.scrollNext();
         }
         await updateCurrentSong();
@@ -106,15 +106,14 @@
     const COVER_CACHE_KEY = "cover_queue_cache";
     const SONG_CACHE_KEY = "song_cache";
     onMount(async () => {
-        await updateSongPosition();
-        paused = !(await playerIsPaused());
+        paused = !(await playerSongPaused());
         
         const cachedCovers = localStorage.getItem(COVER_CACHE_KEY);
         if (cachedCovers) {
             cover_queue = JSON.parse(cachedCovers);
         } else {
             try {
-                cover_queue = await getQueue();
+                cover_queue = await playerCoverPathQueue();
                 localStorage.setItem(
                     COVER_CACHE_KEY,
                     JSON.stringify(cover_queue),
@@ -137,23 +136,23 @@
     });
 
     async function updateSongPosition() {
-        song_position = await getSongPosition();
+        song_position = await playerSongPosition();
         song_position_display = await displayDuration(song_position);
         if (song.duration == 0) {
             return;
         }
         if (
             song.duration - song_position < 1 &&
-            (await playerNotPlaying()) &&
-            !(await getPlayerRepeat())
+            (await playerSongFinished()) &&
+            !(await playerRepeat())
         ) {
             await nextSong();
         } else if (
             song.duration - song_position < 1 &&
-            !(await playerNotPlaying()) &&
-            (await getPlayerRepeat())
+            !(await playerSongFinished()) &&
+            (await playerRepeat())
         ) {
-            await skipMusic(0);
+            await playerSkip(0);
         }
     }
     importCSS();
@@ -214,9 +213,9 @@
     <div class="controls">
         <button
             class="left-side"
-            use:Shortcut={{ alt: false, code: "KeyN" }}
+            use:Shortcut={{ alt: false, code: "KeyB" }}
             on:click={async () => {
-                await shuffleMusic();
+                await playerShuffleQueue();
             }}
         >
             <ShuffleIcon size="50rem" />
@@ -225,7 +224,7 @@
             class="left-side"
             use:Shortcut={{ alt: false, code: "KeyN" }}
             on:click={async () => {
-                await skipMusic(-1);
+                await playerSkip(-1);
                 api.scrollPrev();
                 await updateCurrentSong();
             }}
@@ -236,8 +235,8 @@
             class="middle"
             use:Shortcut={{ shift: false, code: "Space" }}
             on:click={async () => {
-                await playPause();
-                paused = !(await playerIsPaused());
+                await playerPlayOrPause();
+                paused = !(await playerSongPaused());
             }}
         >
             {#if paused}
@@ -259,7 +258,7 @@
             class="right-side"
             use:Shortcut={{ control: false, code: "KeyR" }}
             on:click={async () => {
-                await togglePlayerRepeat();
+                await playerToggleRepeat();
             }}
         >
             <RepeatIcon size="50em" />
@@ -269,25 +268,25 @@
         <button
             use:Shortcut={{ code: "ArrowRight" }}
             on:click={async () => {
-                await seekPosition(10);
+                await playerSeekPosition(10);
             }}
         ></button>
         <button
             use:Shortcut={{ code: "ArrowLeft" }}
             on:click={async () => {
-                await seekPosition(-10);
+                await playerSeekPosition(-10);
             }}
         ></button>
         <button
             use:Shortcut={{ code: "ArrowUp" }}
             on:click={async () => {
-                await adjustVolume(0.05);
+                await playerAdjustVolume(0.05);
             }}
         ></button>
         <button
             use:Shortcut={{ code: "ArrowDown" }}
             on:click={async () => {
-                await adjustVolume(-0.05);
+                await playerAdjustVolume(-0.05);
             }}
         ></button>
     </div>

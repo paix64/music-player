@@ -4,60 +4,56 @@ import { appConfigDir } from "@tauri-apps/api/path";
 
 cachePlaylistTypes();
 
-export async function playPause() {
-    await invoke("play_pause");
+export async function playerPlayOrPause() {
+    await invoke("player_play_or_pause");
 }
 
-export async function adjustVolume(by: number) {
-    await invoke("adjust_volume", { by });
+export async function playerAdjustVolume(by: number) {
+    await invoke("player_adjust_volume", { by });
 }
 
-export async function seekPosition(nSeconds: number) {
-    await invoke("seek_position", { nSeconds });
+export async function playerSeekPosition(by: number) {
+    await invoke("player_seek_position", { by });
 }
 
-export async function getSongPosition(): Promise<number> {
-    return await invoke("get_song_position");
+export async function playerSkip(to: number) {
+    await invoke("player_skip", { to });
 }
 
-export async function getCurrentSongInfo(key: string): Promise<any> {
-    return await invoke("get_current_song_info", { key });
+export async function playerSongPosition(): Promise<number> {
+    return await invoke("player_song_position");
 }
 
-async function cachePlaylistTypes() {
-    await invoke("create_playlist_types");
+export async function playerCurrentSongInfo(key: string): Promise<any> {
+    return await invoke("player_current_song_info", { key });
 }
 
-export async function skipMusic(toIndex: number) {
-    await invoke("skip_music", { toIndex });
+export async function playerShuffleQueue() {
+    await invoke("player_shuffle_queue");
 }
 
-export async function shuffleMusic() {
-    await invoke("shuffle_music");
+export async function playerCoverPathQueue(): Promise<any> {
+    return await invoke("player_cover_path_queue");
 }
 
-export async function getQueue(): Promise<any> {
-    return await invoke("get_queue_of_covers");
+export async function playerSongFinished(): Promise<boolean> {
+    return await invoke("player_song_finished");
 }
 
-export async function playerNotPlaying(): Promise<boolean> {
-    return await invoke("not_playing");
+export async function playerRepeat(): Promise<boolean> {
+    return await invoke("player_repeat");
 }
 
-export async function getPlayerRepeat(): Promise<boolean> {
-    return await invoke("get_repeat");
+export async function playerSongPaused(): Promise<boolean> {
+    return await invoke("player_song_paused");
 }
 
-export async function togglePlayerRepeat() {
-    await invoke("toggle_repeat");
+export async function playerToggleRepeat() {
+    await invoke("player_toggle_repeat");
 }
 
 export async function getAlbumPlaylists(): Promise<any> {
     return await invoke("get_album_playlists");
-}
-
-export async function playerIsPaused(): Promise<boolean> {
-    return await invoke("is_paused");
 }
 
 export async function playAlbumPlaylist(album: string) {
@@ -80,4 +76,8 @@ export async function importCSS() {
             `'<link rel="stylesheet" href=${fallback} />'`,
         );
     }
+}
+
+async function cachePlaylistTypes() {
+    await invoke("create_playlist_types");
 }

@@ -7,10 +7,10 @@ use crate::song::Song;
 
 pub struct Player {
     _output_stream: (OutputStream, OutputStreamHandle),
-    pub sink: Sink,
+    sink: Sink,
     pub current_song: Option<Song>,
     pub queue: Vec<Song>,
-    pub repeat_current_song: bool,
+    pub repeat: bool,
     pub is_shuffled: bool,
     queue_index: i32,
     volume: f32,
@@ -26,7 +26,7 @@ impl Player {
             sink: s,
             current_song: None,
             queue: vec![],
-            repeat_current_song: false,
+            repeat: false,
             is_shuffled: false,
             queue_index: 0,
             volume: 0.5,
@@ -43,6 +43,17 @@ impl Player {
 
         self.sink.append(source);
         self.sink.play();
+    }
+
+    pub fn skip(&mut self, to: i32) {
+        let index = (self.queue_index as i32 + to) as usize;
+        let current_song = self.queue.get(self.queue_index as usize).cloned().unwrap();
+        let next_song = self.queue.get(index).unwrap_or(&current_song);
+
+        if next_song.get_path() != current_song.get_path() {
+            self.queue_index += to;
+        }
+        self.play(next_song.get_path())
     }
 
     pub fn add_to_queue(&mut self, path: PathBuf) {
@@ -66,15 +77,19 @@ impl Player {
         }
     }
 
-    pub fn skip(&mut self, to_index: i32) {
-        let index = (self.queue_index as i32 + to_index) as usize;
-        let next_song = self.queue.get(index).expect("Index does not exist");
-
-        self.queue_index += to_index;
-        self.play(next_song.get_path())
+    pub fn song_finished(&self) -> bool {
+        self.sink.empty()
     }
 
-    pub fn shuffle(&mut self) {
+    pub fn song_paused(&self) -> bool {
+        self.sink.is_paused()
+    }
+
+    pub fn song_position(&self) -> u64 {
+        self.sink.get_pos().as_secs()
+    }
+
+    pub fn shuffle_queue(&mut self) {
         if !self.is_shuffled {
             let mut rng = thread_rng();
             self.queue.shuffle(&mut rng);
@@ -82,32 +97,10 @@ impl Player {
         self.is_shuffled = true;
     }
 
-    pub fn get_song_duration(&self) -> u32 {
-        match &self.current_song {
-            Some(s) => Duration::as_secs(&s.duration) as u32,
-            None => 0,
-        }
-    }
-
-    pub fn get_album_cover(&self) -> PathBuf {
-        match &self.current_song {
-            Some(s) => s.get_cover_path(),
-            None => PathBuf::default(),
-        }
-    }
-
     pub fn empty_queue(&mut self) {
         self.queue.clear();
         self.sink.clear();
         self.queue_index = 0;
-    }
-
-    pub fn get_position(&self) -> u32 {
-        Duration::as_secs_f32(&self.sink.get_pos()) as u32
-    }
-
-    pub fn not_playing(&self) -> bool {
-        self.sink.empty()
     }
 
     pub fn adjust_volume(&mut self, by: f32) {
@@ -117,10 +110,16 @@ impl Player {
         self.sink.set_volume(self.volume)
     }
 
-    pub fn seek_position(&self, n_seconds: i32) {
-        let mut new_position = self.get_position() as i32 + n_seconds;
+    pub fn seek_position(&self, by: i32) {
+        let mut new_position = self.sink.get_pos().as_secs() as i32 + by;
+        let song_duration = self
+            .current_song
+            .clone()
+            .unwrap_or_default()
+            .duration
+            .as_secs() as i32;
+        new_position = new_position.clamp(0, song_duration);
 
-        new_position = new_position.clamp(0, self.get_song_duration() as i32);
         self.sink
             .try_seek(Duration::from_secs(new_position as u64))
             .expect("Cannot change player position");

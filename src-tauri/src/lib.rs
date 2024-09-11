@@ -24,17 +24,18 @@ lazy_static! {
 }
 
 #[tauri::command]
-async fn get_song_position() -> u32 {
+async fn player_song_position() -> u64 {
     let player = PLAYER.lock().await;
-    player.get_position()
+    player.song_position()
 }
 
 #[tauri::command]
-async fn play_pause() {
+async fn player_play_or_pause() {
+    let song_finished = player_song_finished().await;
     let mut player = PLAYER.lock().await;
 
     let first_song = player.queue.get(0).unwrap().get_path();
-    if player.not_playing() {
+    if song_finished {
         player.play(first_song);
     } else {
         player.pause_resume();
@@ -42,53 +43,43 @@ async fn play_pause() {
 }
 
 #[tauri::command]
-async fn seek_position(n_seconds: i32) {
-    let player = PLAYER.lock().await;
-    player.seek_position(n_seconds);
+async fn player_skip(to: i32) {
+    let mut player = PLAYER.lock().await;
+    player.skip(to);
 }
 
 #[tauri::command]
-async fn adjust_volume(by: f32) {
+async fn player_seek_position(by: i32) {
+    let player = PLAYER.lock().await;
+    player.seek_position(by);
+}
+
+#[tauri::command]
+async fn player_adjust_volume(by: f32) {
     let mut player = PLAYER.lock().await;
     player.adjust_volume(by);
 }
 
 #[tauri::command]
-async fn skip_music(to_index: i32) {
+async fn player_shuffle_queue() {
     let mut player = PLAYER.lock().await;
-    player.skip(to_index);
+    player.shuffle_queue();
 }
 
 #[tauri::command]
-async fn shuffle_music() {
-    let mut player = PLAYER.lock().await;
-    player.shuffle();
-}
-
-#[tauri::command]
-async fn get_queue_of_covers() -> Vec<PathBuf> {
+async fn player_song_finished() -> bool {
     let player = PLAYER.lock().await;
-    player
-        .queue
-        .iter()
-        .map(|song| song.get_cover_path())
-        .collect()
+    player.song_finished()
 }
 
 #[tauri::command]
-async fn not_playing() -> bool {
+async fn player_song_paused() -> bool {
     let player = PLAYER.lock().await;
-    player.not_playing()
+    player.song_paused()
 }
 
 #[tauri::command]
-async fn is_paused() -> bool {
-    let player = PLAYER.lock().await;
-    player.sink.is_paused()
-}
-
-#[tauri::command]
-async fn get_current_song_info(key: String) -> String {
+async fn player_current_song_info(key: String) -> String {
     let player = PLAYER.lock().await;
     let current_song = player.current_song.clone().unwrap_or_default();
 
@@ -99,24 +90,32 @@ async fn get_current_song_info(key: String) -> String {
         "genre" => current_song.genre.unwrap_or_default(),
         "year" => current_song.year.unwrap_or_default().to_string(),
         "track" => current_song.track.unwrap_or_default().to_string(),
-        "duration" => player.get_song_duration().to_string(),
-        "album_cover" => player.get_album_cover().display().to_string(),
+        "duration" => current_song.duration.as_secs().to_string(),
+        "cover_path" => current_song.get_cover_path().display().to_string(),
         _ => String::default(),
     }
 }
 
-fn get_audio_from_path(_dir: &str) -> Vec<PathBuf> {
-    let paths = dirs::audio_dir().unwrap();
-    let mut path_list: Vec<PathBuf> = vec![];
+#[tauri::command]
+async fn player_cover_path_queue() -> Vec<PathBuf> {
+    let player = PLAYER.lock().await;
+    player
+        .queue
+        .iter()
+        .map(|song| song.get_cover_path())
+        .collect()
+}
 
-    for entry in WalkDir::new(paths).into_iter().filter_map(|e| e.ok()) {
-        let file_name = entry.file_name().to_str().unwrap();
-        let formats = [".mp3", ".ogg", ".wav", ".flac", ".aac", ".m4a"];
-        if formats.iter().any(|&format| file_name.contains(format)) {
-            path_list.push(entry.path().to_owned());
-        }
-    }
-    path_list
+#[tauri::command]
+async fn player_repeat() -> bool {
+    let player = PLAYER.lock().await;
+    player.repeat
+}
+
+#[tauri::command]
+async fn player_toggle_repeat() {
+    let mut player = PLAYER.lock().await;
+    player.repeat = !player.repeat;
 }
 
 #[tauri::command]
@@ -133,15 +132,39 @@ async fn create_playlist_types() {
 }
 
 #[tauri::command]
-async fn get_repeat() -> bool {
-    let player = PLAYER.lock().await;
-    player.repeat_current_song
+async fn play_album_playlist(album: String) {
+    let playlist = get_album_playlist(album).await;
+    let mut player = PLAYER.lock().await;
+    player.empty_queue();
+    for song in playlist.song_list {
+        player.add_to_queue(song.get_path());
+    }
+    let first_song = player.queue.get(0).cloned().unwrap_or_default().get_path();
+    player.play(first_song)
 }
 
 #[tauri::command]
-async fn toggle_repeat() {
-    let mut player = PLAYER.lock().await;
-    player.repeat_current_song = !player.repeat_current_song;
+async fn get_album_playlists() -> Vec<Playlist> {
+    let app_cache_path = format!(
+        "{}/{}/cache.bu",
+        config_dir().unwrap().display().to_string(),
+        Arc::clone(&APP_NAME)
+    );
+    let cache = read_to_string(&app_cache_path).unwrap_or_default();
+    let mut playlist_list = vec![];
+
+    for l in cache.lines() {
+        let mut l = l.split_whitespace();
+        let type_of = l.next().unwrap_or_default();
+        let album_of = l.clone().collect::<Vec<&str>>().join(&String::from(" "));
+        if type_of == "Album" {
+            let playlist = get_album_playlist(album_of).await;
+            if playlist.cover_path.exists() {
+                playlist_list.push(playlist)
+            }
+        }
+    }
+    playlist_list
 }
 
 async fn get_songs_of_album(album: &String) -> Vec<Song> {
@@ -188,40 +211,18 @@ async fn get_album_playlist(album: String) -> Playlist {
     playlist
 }
 
-#[tauri::command]
-async fn play_album_playlist(album: String) {
-    let playlist = get_album_playlist(album).await;
-    let mut player = PLAYER.lock().await;
-    player.empty_queue();
-    for song in playlist.song_list {
-        player.add_to_queue(song.get_path());
-    }
-    let first_song = player.queue.get(0).cloned().unwrap_or_default().get_path();
-    player.play(first_song)
-}
+fn get_audio_from_path(_dir: &str) -> Vec<PathBuf> {
+    let paths = dirs::audio_dir().unwrap();
+    let mut path_list: Vec<PathBuf> = vec![];
 
-#[tauri::command]
-async fn get_album_playlists() -> Vec<Playlist> {
-    let app_cache_path = format!(
-        "{}/{}/cache.bu",
-        config_dir().unwrap().display().to_string(),
-        Arc::clone(&APP_NAME)
-    );
-    let cache = read_to_string(&app_cache_path).unwrap_or_default();
-    let mut playlist_list = vec![];
-
-    for l in cache.lines() {
-        let mut l = l.split_whitespace();
-        let type_of = l.next().unwrap_or_default();
-        let album_of = l.clone().collect::<Vec<&str>>().join(&String::from(" "));
-        if type_of == "Album" {
-            let playlist = get_album_playlist(album_of).await;
-            if playlist.cover_path.exists() {
-                playlist_list.push(playlist)
-            }
+    for entry in WalkDir::new(paths).into_iter().filter_map(|e| e.ok()) {
+        let file_name = entry.file_name().to_str().unwrap();
+        let formats = [".mp3", ".ogg", ".wav", ".flac", ".aac", ".m4a"];
+        if formats.iter().any(|&format| file_name.contains(format)) {
+            path_list.push(entry.path().to_owned());
         }
     }
-    playlist_list
+    path_list
 }
 
 fn process_playlist_type(t: String) {
@@ -261,21 +262,21 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
-            skip_music,
-            play_pause,
-            get_song_position,
-            get_current_song_info,
-            seek_position,
-            not_playing,
-            get_repeat,
-            toggle_repeat,
-            get_queue_of_covers,
-            adjust_volume,
+            player_song_position,
+            player_song_paused,
+            player_song_finished,
+            player_skip,
+            player_play_or_pause,
+            player_current_song_info,
+            player_seek_position,
+            player_repeat,
+            player_toggle_repeat,
+            player_cover_path_queue,
+            player_adjust_volume,
+            player_shuffle_queue,
             create_playlist_types,
             get_album_playlists,
             play_album_playlist,
-            shuffle_music,
-            is_paused
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

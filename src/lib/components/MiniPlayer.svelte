@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { getCurrentSongInfo, playPause } from "../../service";
+    import { playerCurrentSongInfo, playerPlayOrPause } from "../../service";
     import { Shortcut } from "../../Shortcut.js";
     import { convertFileSrc } from "@tauri-apps/api/core";
 
     let current_song_album_cover = "";
     let current_song_title = "";
     export async function getCurrentSong() {
-        current_song_title = await getCurrentSongInfo("title");
-        current_song_album_cover = await getCurrentSongInfo("album_cover");
+        current_song_title = await playerCurrentSongInfo("title");
+        current_song_album_cover = await playerCurrentSongInfo("cover_path");
     }
     getCurrentSong();
 </script>
@@ -16,7 +16,7 @@
     <button
         class="flex flex-row mx-auto my-auto"
         use:Shortcut={{ shift: false, code: "Space" }}
-        on:click={() => playPause()}
+        on:click={() => playerPlayOrPause()}
     >
         {#if current_song_album_cover !== ""}
             <div class="border-2 rounded-xl overflow-hidden">
