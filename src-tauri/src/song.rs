@@ -1,7 +1,10 @@
+use image::{ImageError, ImageReader};
 use lofty::file::{AudioFile, TaggedFileExt};
 use lofty::probe::Probe;
 use lofty::tag::Accessor;
 use serde::Serialize;
+use std::fs;
+use std::io::Cursor;
 use std::path::PathBuf;
 use std::time::Duration;
 use walkdir::WalkDir;
@@ -10,6 +13,7 @@ use walkdir::WalkDir;
 pub struct Song {
     path: PathBuf,
     cover_path: Option<PathBuf>,
+    pub cover_data: Option<Vec<u8>>,
     pub title: Option<String>,
     pub artist: Option<String>,
     pub album: Option<String>,
@@ -29,6 +33,7 @@ impl Song {
         Self {
             path,
             cover_path: None,
+            cover_data: None,
             title: None,
             artist: None,
             album: None,
@@ -67,6 +72,19 @@ impl Song {
         self.track = metadata_tag.track().map(|s| s as u32);
         self.year = metadata_tag.year().map(|s| s as u32);
         self.cover_path = Song::set_cover_path(".", self.album.clone().unwrap_or_default());
+        self.cover_data = metadata_tag.pictures().get(0).map(|p| p.data().to_owned());
+
+        let cache = dirs::cache_dir().unwrap_or_default();
+        let app_name = "bu-player".to_string();
+        let format = format!(
+            "{}/{}/{}.jpg",
+            cache.display(),
+            app_name,
+            self.album.clone().unwrap_or_default()
+        );
+        if fs::metadata(&format).is_err() {
+            let _ = self.process_cover_data(self.cover_data.clone(), format);
+        }
     }
 
     pub fn get_path(&self) -> PathBuf {
@@ -75,6 +93,27 @@ impl Song {
 
     pub fn get_cover_path(&self) -> PathBuf {
         self.cover_path.clone().unwrap_or_default()
+    }
+
+    fn process_cover_data(
+        &self,
+        data: Option<Vec<u8>>,
+        format: String,
+    ) -> Result<(), ImageError> {
+        println!("Processing, {}", self.album.clone().unwrap_or_default());
+
+        match data {
+            None => {
+                println!("Cover metadata not found");
+            }
+            Some(data) => {
+                let img = ImageReader::new(Cursor::new(data))
+                    .with_guessed_format()?
+                    .decode()?;
+                img.save(format)?
+            }
+        }
+        Ok(())
     }
 
     fn set_cover_path(_dir: &str, album: String) -> Option<PathBuf> {
