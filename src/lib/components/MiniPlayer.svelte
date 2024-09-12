@@ -2,6 +2,7 @@
     import { playerCurrentSongInfo, playerPlayOrPause } from "../../service";
     import { Shortcut } from "../../Shortcut.js";
     import { convertFileSrc } from "@tauri-apps/api/core";
+    import Shortcuts from "$lib/components/Shortcuts.svelte";
 
     let current_song_album_cover = "";
     let current_song_title = "";
@@ -13,6 +14,7 @@
 </script>
 
 <div class="fixed left-0 bottom-0 m-0 h-20 w-screen shadow-inner flex bg-white">
+    <Shortcuts />
     <button
         class="flex flex-row mx-auto my-auto"
         use:Shortcut={{ shift: false, code: "Space" }}

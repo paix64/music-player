@@ -16,16 +16,17 @@
   - [x] Repeat (by default)
   - [x] Based on metadata
 - [x] Custom CSS
-- [ ] Mini player in library
 
 ### v0.1.1
+- [x] Mini player indicator in library
 - [ ] Playlists
   - [ ] Based on directories
   - [ ] Custom
 - [ ] MPRIS support
 - [ ] Youtube download/search support
+- [ ] Fetch metadata from internet
    
-- Took 59.5 hours to build
+- Took 60.5 hours to build
 
 | Format | Seeking Support | Cover Art Support |
 | ------ | --------------- | ----------------- |

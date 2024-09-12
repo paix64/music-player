@@ -5,6 +5,7 @@
     import { convertFileSrc } from "@tauri-apps/api/core";
     import { Shortcut } from "../../Shortcut.js";
     import Navigation from "$lib/components/Navigation.svelte";
+    import Shortcuts from "$lib/components/Shortcuts.svelte";
     import { onMount } from "svelte";
 
     import {
@@ -16,8 +17,6 @@
         ShuffleIcon,
     } from "svelte-feather-icons";
     import {
-        playerAdjustVolume,
-        playerSeekPosition,
         playerCurrentSongInfo,
         playerSkip,
         playerPlayOrPause,
@@ -67,12 +66,14 @@
             genre: await playerCurrentSongInfo("genre"),
             year: await playerCurrentSongInfo("year"),
             track: await playerCurrentSongInfo("track"),
-            duration: await playerCurrentSongInfo("duration").then((duration) => {
-                if ((duration as number) == 0) {
-                    return 1.0;
-                }
-                return duration;
-            }),
+            duration: await playerCurrentSongInfo("duration").then(
+                (duration) => {
+                    if ((duration as number) == 0) {
+                        return 1.0;
+                    }
+                    return duration;
+                },
+            ),
             duration_display: "",
         };
         song.duration_display = await displayDuration(song.duration);
@@ -107,7 +108,7 @@
     const SONG_CACHE_KEY = "song_cache";
     onMount(async () => {
         paused = !(await playerSongPaused());
-        
+
         const cachedCovers = localStorage.getItem(COVER_CACHE_KEY);
         if (cachedCovers) {
             cover_queue = JSON.parse(cachedCovers);
@@ -161,6 +162,7 @@
 
 <div class="main player">
     <Navigation />
+    <Shortcuts />
     <p class="title-album">{song.album}</p>
     <Carousel.Root
         bind:api
@@ -263,31 +265,5 @@
         >
             <RepeatIcon size="50em" />
         </button>
-    </div>
-    <div>
-        <button
-            use:Shortcut={{ code: "ArrowRight" }}
-            on:click={async () => {
-                await playerSeekPosition(10);
-            }}
-        ></button>
-        <button
-            use:Shortcut={{ code: "ArrowLeft" }}
-            on:click={async () => {
-                await playerSeekPosition(-10);
-            }}
-        ></button>
-        <button
-            use:Shortcut={{ code: "ArrowUp" }}
-            on:click={async () => {
-                await playerAdjustVolume(0.05);
-            }}
-        ></button>
-        <button
-            use:Shortcut={{ code: "ArrowDown" }}
-            on:click={async () => {
-                await playerAdjustVolume(-0.05);
-            }}
-        ></button>
     </div>
 </div>
