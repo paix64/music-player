@@ -33,6 +33,7 @@
     let api: CarouselAPI;
     let current = 0;
     let paused: boolean;
+    let loading = true;
 
     $: if (api) {
         current = api.selectedScrollSnap() + 1;
@@ -98,7 +99,9 @@
     }
 
     async function updateCurrentSong() {
+        loading = true;
         song = await getCurrentSong();
+        loading = false;
         if (song.title !== "") {
             localStorage.setItem(SONG_CACHE_KEY, JSON.stringify(song));
         }
@@ -160,6 +163,12 @@
     setInterval(updateSongPosition, 500);
 </script>
 
+
+{#if loading}
+    <div>
+        <Navigation />
+    </div>
+{:else}
 <div class="main player">
     <Navigation />
     <Shortcuts />
@@ -267,3 +276,4 @@
         </button>
     </div>
 </div>
+{/if}
