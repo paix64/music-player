@@ -33,7 +33,7 @@
     let api: CarouselAPI;
     let current = 0;
     let paused: boolean;
-    let loading = true;
+    let firstLoading = true;
 
     $: if (api) {
         current = api.selectedScrollSnap() + 1;
@@ -99,9 +99,8 @@
     }
 
     async function updateCurrentSong() {
-        loading = true;
         song = await getCurrentSong();
-        loading = false;
+        firstLoading = false;
         if (song.title !== "") {
             localStorage.setItem(SONG_CACHE_KEY, JSON.stringify(song));
         }
@@ -163,117 +162,116 @@
     setInterval(updateSongPosition, 500);
 </script>
 
-
-{#if loading}
+{#if firstLoading}
     <div>
         <Navigation />
     </div>
 {:else}
-<div class="main player">
-    <Navigation />
-    <Shortcuts />
-    <p class="title-album">{song.album}</p>
-    <Carousel.Root
-        bind:api
-        class="cover-list"
-        opts={{
-            watchDrag: false,
-        }}
-    >
-        <Carousel.Content>
-            {#if cover_queue.length > 0}
-                {#each cover_queue as cover}
-                    <Carousel.Item>
-                        <div class="cover-border">
-                            <img
-                                src={convertFileSrc(cover)}
-                                alt="Album Cover"
-                                class="cover"
-                                loading="lazy"
-                            />
-                        </div>
-                    </Carousel.Item>
-                {/each}
-            {:else}
-                <img
-                    src={"src/assets/placeholder.jpg"}
-                    alt="Album Cover"
-                    class="cover"
-                    loading="lazy"
-                />
-            {/if}
-        </Carousel.Content>
-    </Carousel.Root>
+    <div class="main player">
+        <Navigation />
+        <Shortcuts />
+        <p class="title-album">{song.album}</p>
+        <Carousel.Root
+            bind:api
+            class="cover-list"
+            opts={{
+                watchDrag: false,
+            }}
+        >
+            <Carousel.Content>
+                {#if cover_queue.length > 0}
+                    {#each cover_queue as cover}
+                        <Carousel.Item>
+                            <div class="cover-border">
+                                <img
+                                    src={convertFileSrc(cover)}
+                                    alt="Album Cover"
+                                    class="cover"
+                                    loading="lazy"
+                                />
+                            </div>
+                        </Carousel.Item>
+                    {/each}
+                {:else}
+                    <img
+                        src={"src/assets/placeholder.jpg"}
+                        alt="Album Cover"
+                        class="cover"
+                        loading="lazy"
+                    />
+                {/if}
+            </Carousel.Content>
+        </Carousel.Root>
 
-    <div class="information">
-        <p class="title">{song.title}</p>
-        <p class="artist">{song.artist}</p>
-        <hr class="seperator" />
-        <Progress
-            value={song_position}
-            max={song.duration}
-            class="progress-bar"
-        />
-        <!-- <Slider value={[song_position]} max={song_duration} class="mx-auto" /> -->
-        <p class="duration float-right">
-            {song.duration_display}
-        </p>
-        <p class="duration">{song_position_display}</p>
-    </div>
+        <div class="information">
+            <p class="title">{song.title}</p>
+            <p class="artist">{song.artist}</p>
+            <hr class="seperator" />
+            <Progress
+                value={song_position}
+                max={song.duration}
+                class="progress-bar"
+            />
+            <!-- <Slider value={[song_position]} max={song_duration} class="mx-auto" /> -->
+            <p class="duration float-right">
+                {song.duration_display}
+            </p>
+            <p class="duration">{song_position_display}</p>
+        </div>
 
-    <div class="controls">
-        <button
-            class="left-side"
-            use:Shortcut={{ alt: false, code: "KeyB" }}
-            on:click={async () => {
-                await playerShuffleQueue();
-            }}
-        >
-            <ShuffleIcon size="50rem" />
-        </button>
-        <button
-            class="left-side"
-            use:Shortcut={{ alt: false, code: "KeyN" }}
-            on:click={async () => {
-                await playerSkip(-1);
-                api.scrollPrev();
-                await updateCurrentSong();
-            }}
-        >
-            <SkipBackIcon size="50rem" />
-        </button>
-        <button
-            class="middle"
-            use:Shortcut={{ shift: false, code: "Space" }}
-            on:click={async () => {
-                await playerPlayOrPause();
-                paused = !(await playerSongPaused());
-            }}
-        >
-            {#if paused}
-                <PauseIcon size="50rem" />
-            {:else}
-                <PlayIcon size="50rem" />
-            {/if}
-        </button>
-        <button
-            class="right-side"
-            use:Shortcut={{ control: false, code: "KeyM" }}
-            on:click={async () => {
-                await nextSong();
-            }}
-        >
-            <SkipForwardIcon size="50em" />
-        </button>
-        <button
-            class="right-side"
-            use:Shortcut={{ control: false, code: "KeyR" }}
-            on:click={async () => {
-                await playerToggleRepeat();
-            }}
-        >
-            <RepeatIcon size="50em" />
-        </button>
+        <div class="controls">
+            <button
+                class="left-side"
+                use:Shortcut={{ alt: false, code: "KeyB" }}
+                on:click={async () => {
+                    await playerShuffleQueue();
+                }}
+            >
+                <ShuffleIcon size="50rem" />
+            </button>
+            <button
+                class="left-side"
+                use:Shortcut={{ alt: false, code: "KeyN" }}
+                on:click={async () => {
+                    await playerSkip(-1);
+                    api.scrollPrev();
+                    await updateCurrentSong();
+                }}
+            >
+                <SkipBackIcon size="50rem" />
+            </button>
+            <button
+                class="middle"
+                use:Shortcut={{ shift: false, code: "Space" }}
+                on:click={async () => {
+                    await playerPlayOrPause();
+                    paused = !(await playerSongPaused());
+                }}
+            >
+                {#if paused}
+                    <PauseIcon size="50rem" />
+                {:else}
+                    <PlayIcon size="50rem" />
+                {/if}
+            </button>
+            <button
+                class="right-side"
+                use:Shortcut={{ control: false, code: "KeyM" }}
+                on:click={async () => {
+                    await nextSong();
+                }}
+            >
+                <SkipForwardIcon size="50em" />
+            </button>
+            <button
+                class="right-side"
+                use:Shortcut={{ control: false, code: "KeyR" }}
+                on:click={async () => {
+                    await playerToggleRepeat();
+                }}
+            >
+                <RepeatIcon size="50em" />
+            </button>
+        </div>
     </div>
-</div>
 {/if}
