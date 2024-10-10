@@ -95,11 +95,7 @@ impl Song {
         self.cover_path.clone().unwrap_or_default()
     }
 
-    fn process_cover_data(
-        &self,
-        data: Option<Vec<u8>>,
-        format: String,
-    ) -> Result<(), ImageError> {
+    fn process_cover_data(&self, data: Option<Vec<u8>>, format: String) -> Result<(), ImageError> {
         println!("Processing, {}", self.album.clone().unwrap_or_default());
 
         match data {
@@ -107,9 +103,15 @@ impl Song {
                 println!("Cover metadata not found");
             }
             Some(data) => {
-                let img = ImageReader::new(Cursor::new(data))
+                let mut img = ImageReader::new(Cursor::new(data))
                     .with_guessed_format()?
                     .decode()?;
+                img = img.crop_imm(
+                    (img.width() - img.height()) / 2,
+                    0,
+                    img.height(),
+                    img.height(),
+                );
                 img.save(format)?
             }
         }
