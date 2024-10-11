@@ -6,6 +6,7 @@
         getAlbumPlaylists,
         playAlbumPlaylist,
         importCSS,
+        fetchAlbumCover,
     } from "../service";
     import { convertFileSrc } from "@tauri-apps/api/core";
 
@@ -44,6 +45,8 @@
                     localStorage.removeItem("song_cache");
                     localStorage.removeItem("cover_queue_cache");
                     await playAlbumPlaylist(album.name);
+                    fetchAlbumCover(album.song_list[0].title, album.name);
+                    console.log(album.song_list[0].title, album.name);
                     await miniPlayer.getCurrentSong();
                 }}
             >

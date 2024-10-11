@@ -81,3 +81,7 @@ export async function importCSS() {
 async function cachePlaylistTypes() {
     await invoke("create_playlist_types");
 }
+
+export async function fetchAlbumCover(title:string, album: string) {
+    await invoke("fetch_album_cover", {title, album });
+}

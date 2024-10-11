@@ -5,6 +5,7 @@ mod song;
 
 use dirs::config_dir;
 use lazy_static::lazy_static;
+use reqwest;
 use std::{
     fs::{self, read_to_string, OpenOptions},
     io::Write,
@@ -13,6 +14,7 @@ use std::{
 };
 use tokio::sync::Mutex;
 use walkdir::WalkDir;
+use youtube_dl::{SearchOptions, YoutubeDl, YoutubeDlOutput};
 
 use crate::player::Player;
 use crate::playlist::Playlist;
@@ -76,6 +78,57 @@ async fn player_song_finished() -> bool {
 async fn player_song_paused() -> bool {
     let player = PLAYER.lock().await;
     player.song_paused()
+}
+
+#[tauri::command]
+async fn fetch_album_cover(title: String, album: String) {
+    println!("Searching for cover art for: {}", album);
+    let cache_path = dirs::cache_dir()
+        .ok_or("Failed to get cache directory")
+        .unwrap();
+    let audio_path = dirs::audio_dir()
+        .ok_or("Failed to get audio directory")
+        .unwrap();
+
+    let search_query = format!("{} {}", title, album);
+    let search = SearchOptions::youtube(&search_query).with_count(1);
+    println!("Searching for: {}", search_query);
+
+    let yt_search = YoutubeDl::search_for(&search).run().unwrap();
+    let video = match yt_search {
+        YoutubeDlOutput::Playlist(playlist) => {
+            if let Some(video) = playlist.entries.unwrap().first() {
+                video.clone()
+            } else {
+                return;
+            }
+        }
+        YoutubeDlOutput::SingleVideo(video) => *video,
+    };
+
+    let thumbnail_url = video.thumbnail.ok_or("No thumbnail found").unwrap();
+    println!("Thumbnail URL: {}", thumbnail_url);
+
+    let thumbnail_path = format!(
+        "{}/{}/{}.png",
+        cache_path.display(),
+        Arc::clone(&APP_NAME),
+        album
+    );
+    let response = reqwest::get(&thumbnail_url).await.unwrap();
+    let mut file = tokio::fs::File::create(&thumbnail_path).await.unwrap();
+    let mut content = response.bytes().await.unwrap();
+    tokio::io::copy(&mut content.as_ref(), &mut file)
+        .await
+        .unwrap();
+
+    let video_url = video.webpage_url.ok_or("No video URL found").unwrap();
+    let audio_output = YoutubeDl::new(&video_url)
+        .socket_timeout("15")
+        .extract_audio(true)
+        .format("m4a")
+        .run()
+        .unwrap();
 }
 
 #[tauri::command]
@@ -277,6 +330,7 @@ pub fn run() {
             create_playlist_types,
             get_album_playlists,
             play_album_playlist,
+            fetch_album_cover
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

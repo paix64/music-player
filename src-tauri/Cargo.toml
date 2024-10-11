@@ -1,5 +1,5 @@
 [package]
-name = "bu-player"
+name = "bupl"
 version = "0.1.0"
 description = "A music player"
 author = "paiyayay"
@@ -8,7 +8,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "bu_player_lib"
+name = "bupl_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]
@@ -20,7 +20,7 @@ tauri-plugin-shell = "2.0.0-rc"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 dirs = "5.0.0"
-rodio = { version = "0.19.0", features= ["symphonia-isomp4", "symphonia-aac"] }
+rodio = { version = "0.19.0", features = ["symphonia-isomp4", "symphonia-aac"] }
 symphonia = { version = "0.5.4", default-features = false }
 lazy_static = "1.5.0"
 tokio = "1.39.3"
@@ -29,3 +29,5 @@ lofty = "0.21.0"
 tauri-plugin-fs = "2.0.0-rc.0"
 rand = "0.8.0"
 image = "0.25.0"
+youtube_dl = "0.10.0"
+reqwest = "0.11"

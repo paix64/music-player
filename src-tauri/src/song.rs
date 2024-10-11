@@ -75,9 +75,9 @@ impl Song {
         self.cover_data = metadata_tag.pictures().get(0).map(|p| p.data().to_owned());
 
         let cache = dirs::cache_dir().unwrap_or_default();
-        let app_name = "bu-player".to_string();
+        let app_name = "bupl".to_string();
         let format = format!(
-            "{}/{}/{}.jpg",
+            "{}/{}/{}.png",
             cache.display(),
             app_name,
             self.album.clone().unwrap_or_default()
