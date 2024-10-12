@@ -26,7 +26,7 @@
 - [ ] Youtube download/search support
 - [ ] Fetch metadata from internet
    
-- Took 66.5 hours to build
+- Took 67 hours to build
 
 | Format | Seeking Support | Cover Art Support |
 | ------ | --------------- | ----------------- |

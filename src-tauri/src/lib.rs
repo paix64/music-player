@@ -100,7 +100,7 @@ async fn fetch_video_info(title: String, album: String) -> SingleVideo {
 }
 
 #[tauri::command]
-async fn fetch_song(title: String, album: String) {
+async fn fetch_audio(title: String, album: String) {
     let audio_path = dirs::audio_dir()
         .ok_or("Failed to get audio directory")
         .unwrap();
@@ -133,11 +133,18 @@ async fn fetch_album_cover(title: String, album: String) {
     let thumbnail_url = video.thumbnail.ok_or("No thumbnail found").unwrap();
     println!("Thumbnail URL: {}", thumbnail_url);
 
+    let extension = if let Some(query_start) = thumbnail_url.find('?') {
+        thumbnail_url[..query_start].split('.').last().unwrap_or("jpg")
+    } else {
+        thumbnail_url.split('.').last().unwrap_or("jpg")
+    };
+
     let thumbnail_path = format!(
-        "{}/{}/{}.png",
+        "{}/{}/{}.{}",
         cache_path.display(),
         Arc::clone(&APP_NAME),
-        &album
+        &album,
+        extension
     );
     let response = reqwest::get(&thumbnail_url).await.unwrap();
     let mut file = tokio::fs::File::create(&thumbnail_path).await.unwrap();
