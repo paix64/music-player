@@ -14,7 +14,7 @@ use std::{
 };
 use tokio::sync::Mutex;
 use walkdir::WalkDir;
-use youtube_dl::{SearchOptions, YoutubeDl, YoutubeDlOutput};
+use youtube_dl::{SearchOptions, SingleVideo, YoutubeDl, YoutubeDlOutput};
 
 use crate::player::Player;
 use crate::playlist::Playlist;
@@ -80,18 +80,9 @@ async fn player_song_paused() -> bool {
     player.song_paused()
 }
 
-#[tauri::command]
-async fn fetch_album_cover(title: String, album: String) {
-    println!("Searching for cover art for: {}", album);
-    let cache_path = dirs::cache_dir()
-        .ok_or("Failed to get cache directory")
-        .unwrap();
-    let audio_path = dirs::audio_dir()
-        .ok_or("Failed to get audio directory")
-        .unwrap();
-
+async fn fetch_video_info(title: String, album: String) -> SingleVideo {
     let search_query = format!("{} {}", title, album);
-    let search = SearchOptions::youtube(&search_query).with_count(1);
+    let search = SearchOptions::youtube(&search_query);
     println!("Searching for: {}", search_query);
 
     let yt_search = YoutubeDl::search_for(&search).run().unwrap();
@@ -100,11 +91,44 @@ async fn fetch_album_cover(title: String, album: String) {
             if let Some(video) = playlist.entries.unwrap().first() {
                 video.clone()
             } else {
-                return;
+                return SingleVideo::default();
             }
         }
         YoutubeDlOutput::SingleVideo(video) => *video,
     };
+    video
+}
+
+#[tauri::command]
+async fn fetch_song(title: String, album: String) {
+    let audio_path = dirs::audio_dir()
+        .ok_or("Failed to get audio directory")
+        .unwrap();
+    let audio_download_path = format!("{}/{}", audio_path.display().to_string(), album);
+
+    let video = fetch_video_info(title, album).await;
+
+    let video_url = video.webpage_url.ok_or("No video URL found").unwrap();
+
+    let _ = fs::create_dir_all(&audio_download_path);
+
+    let _audio_output = YoutubeDl::new(&video_url)
+        .socket_timeout("15")
+        .extract_audio(true)
+        .format("m4a")
+        .output_directory(&audio_download_path)
+        .run()
+        .unwrap();
+    println!("Downloaded audio to: {}", audio_download_path);
+}
+#[tauri::command]
+async fn fetch_album_cover(title: String, album: String) {
+    println!("Searching for cover art for: {}", album);
+    let cache_path = dirs::cache_dir()
+        .ok_or("Failed to get cache directory")
+        .unwrap();
+
+    let video = fetch_video_info(title, album.clone()).await;
 
     let thumbnail_url = video.thumbnail.ok_or("No thumbnail found").unwrap();
     println!("Thumbnail URL: {}", thumbnail_url);
@@ -113,21 +137,13 @@ async fn fetch_album_cover(title: String, album: String) {
         "{}/{}/{}.png",
         cache_path.display(),
         Arc::clone(&APP_NAME),
-        album
+        &album
     );
     let response = reqwest::get(&thumbnail_url).await.unwrap();
     let mut file = tokio::fs::File::create(&thumbnail_path).await.unwrap();
-    let mut content = response.bytes().await.unwrap();
+    let content = response.bytes().await.unwrap();
     tokio::io::copy(&mut content.as_ref(), &mut file)
         .await
-        .unwrap();
-
-    let video_url = video.webpage_url.ok_or("No video URL found").unwrap();
-    let audio_output = YoutubeDl::new(&video_url)
-        .socket_timeout("15")
-        .extract_audio(true)
-        .format("m4a")
-        .run()
         .unwrap();
 }
 
