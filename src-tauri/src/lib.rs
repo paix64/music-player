@@ -21,7 +21,7 @@ use crate::playlist::Playlist;
 use crate::song::Song;
 
 lazy_static! {
-    static ref PLAYER: Mutex<Player> = Mutex::new(Player::new());
+    static ref PLAYER: Arc<Mutex<Player>> = Arc::new(Mutex::new(Player::new()));
     static ref APP_NAME: Arc<String> = Arc::new(String::from("bupl"));
 }
 
@@ -99,8 +99,7 @@ async fn fetch_video_info(title: String, album: String) -> SingleVideo {
     video
 }
 
-#[tauri::command]
-async fn fetch_audio(title: String, album: String) {
+async fn _fetch_audio(title: String, album: String) {
     let audio_path = dirs::audio_dir()
         .ok_or("Failed to get audio directory")
         .unwrap();
@@ -134,7 +133,10 @@ async fn fetch_album_cover(title: String, album: String) {
     println!("Thumbnail URL: {}", thumbnail_url);
 
     let extension = if let Some(query_start) = thumbnail_url.find('?') {
-        thumbnail_url[..query_start].split('.').last().unwrap_or("jpg")
+        thumbnail_url[..query_start]
+            .split('.')
+            .last()
+            .unwrap_or("jpg")
     } else {
         thumbnail_url.split('.').last().unwrap_or("jpg")
     };
@@ -196,11 +198,12 @@ async fn player_toggle_repeat() {
 
 #[tauri::command]
 async fn create_playlist_types() {
-    let player = PLAYER.lock().await;
+    let player = PLAYER.clone();
+    let player = player.lock().await;
     let songs = get_audio_from_path("dir");
 
     for song in songs {
-        let info = player.get_song_info(song);
+        let info = player.get_song_info(song).await;
         process_playlist_type("Album ".to_owned() + &info.album.unwrap_or_default());
         process_playlist_type("Artist ".to_owned() + &info.artist.unwrap_or_default());
         process_playlist_type("Genre ".to_owned() + &info.genre.unwrap_or_default());
@@ -210,10 +213,11 @@ async fn create_playlist_types() {
 #[tauri::command]
 async fn play_album_playlist(album: String) {
     let playlist = get_album_playlist(album).await;
-    let mut player = PLAYER.lock().await;
+    let player = PLAYER.clone();
+    let mut player = player.lock().await;
     player.empty_queue();
     for song in playlist.song_list {
-        player.add_to_queue(song.get_path());
+        player.add_to_queue(song.get_path()).await;
     }
     let first_song = player.queue.get(0).cloned().unwrap_or_default().get_path();
     player.play(first_song)
@@ -249,7 +253,7 @@ async fn get_songs_of_album(album: &String) -> Vec<Song> {
     let mut song_list = vec![];
 
     for song in songs {
-        let info = player.get_song_info(song);
+        let info = player.get_song_info(song).await;
         if &info.album.clone().unwrap_or_default() == album {
             song_list.push(info);
         }

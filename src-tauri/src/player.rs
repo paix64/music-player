@@ -56,16 +56,14 @@ impl Player {
         self.play(next_song.get_path())
     }
 
-    pub fn add_to_queue(&mut self, path: PathBuf) {
-        let mut song = Song::new(path);
-        song.load_metadata();
-
+    pub async fn add_to_queue(&mut self, path: PathBuf) {
+        let song = self.get_song_info(path).await;
         self.queue.push(song);
     }
 
-    pub fn get_song_info(&self, path: PathBuf) -> Song {
+    pub async fn get_song_info(&self, path: PathBuf) -> Song {
         let mut song = Song::new(path);
-        song.load_metadata();
+        song.load_metadata().await;
         song
     }
 
