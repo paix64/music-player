@@ -1,3 +1,25 @@
+## Run the project
+
+### Install bun
+```
+curl -fsSL https://bun.sh/install | bash
+```
+
+### Install dependencies
+```
+bun install
+```
+
+### Compiles and runs the project for development
+```
+bun run dev
+```
+
+### Compiles and optimizes the project for production
+```
+bun run build
+```
+
 ## Roadmap
 #### v0.1.0
 - [x] Play/Pause song
